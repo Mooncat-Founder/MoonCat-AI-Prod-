@@ -1,10 +1,13 @@
-const MoonTestToken = artifacts.require("MoonTestToken");
 
-module.exports = function(deployer) {
-    // Specify the initial supply of tokens (e.g., 10000 tokens, with 18 decimals)
-    // The `web3.utils.toWei` function converts the amount into the smallest unit (wei)
-    // Since ERC20 tokens use 18 decimals by default, we treat 1 token as 1 * 10^18 wei
-    const initialSupply = web3.utils.toWei('10000000', 'ether'); 
+require('dotenv').config();
+const VariableToken = artifacts.require("VariableToken");
 
-    deployer.deploy(MoonTestToken, initialSupply);
+export default function(deployer) {
+    // Retrieve environment variables
+    const name = process.env.TOKEN_NAME;
+    const symbol = process.env.TOKEN_SYMBOL;
+    const initialSupply = web3.utils.toWei('10000', 'ether'); // Example initial supply
+
+    // Deploy the contract with the specified name, symbol, and initial supply
+    deployer.deploy(VariableToken, name, symbol, initialSupply);
 };
