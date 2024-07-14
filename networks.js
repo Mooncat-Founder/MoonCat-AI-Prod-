@@ -1,32 +1,46 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
+const dotenv = require('dotenv');
 
-const sepoliaProvider = new HDWalletProvider(
-  process.env.SEPOLIA_PRIVATE_KEY,
-  `https://sepolia.infura.io/v3/${process.env.SEPOLIA_INFURA_PROJECT_ID}`
-);
+dotenv.config();
 
-const mainnetProvider = new HDWalletProvider(
-  process.env.MAINNET_PRIVATE_KEY,
-  `https://mainnet.infura.io/v3/${process.env.MAINNET_INFURA_PROJECT_ID}`
-);
+// Debugging - Print out the environment variables
+console.log("Sepolia Private Key Length:", process.env.SEPOLIA_PRIVATE_KEY.length);
+// Comment out the mainnet private key length check
+// console.log("Mainnet Private Key Length:", process.env.MAINNET_PRIVATE_KEY.length);
+
+const sepoliaProvider = new HDWalletProvider({
+  privateKeys: [process.env.SEPOLIA_PRIVATE_KEY],
+  providerOrUrl: `https://sepolia.infura.io/v3/${process.env.SEPOLIA_INFURA_PROJECT_ID}`,
+  headers: {
+    'Infura-Secret': process.env.INFURA_PROJECT_SECRET
+  }
+});
+
+// Comment out the mainnet provider configuration for now
+// const mainnetProvider = new HDWalletProvider({
+//   privateKeys: [process.env.MAINNET_PRIVATE_KEY],
+//   providerOrUrl: `https://mainnet.infura.io/v3/${process.env.MAINNET_INFURA_PROJECT_ID}`,
+//   headers: {
+//     'Infura-Secret': process.env.INFURA_PROJECT_SECRET
+//   }
+// });
 
 module.exports = {
-  networks: {
-    sepolia: {
-      provider: () => sepoliaProvider,
-      network_id: 11155111,
-      gas: 5500000,
-      confirmations: 2,
-      timeoutBlocks: 200,
-      skipDryRun: true
-    },
-    mainnet: {
-      provider: () => mainnetProvider,
-      network_id: 1, // Mainnet's id
-      gas: 5500000,
-      confirmations: 2,
-      timeoutBlocks: 200,
-      skipDryRun: false
-    }
-  }
+  sepolia: {
+    provider: () => sepoliaProvider,
+    network_id: 11155111,
+    gas: 5500000,
+    confirmations: 2,
+    timeoutBlocks: 200,
+    skipDryRun: true
+  },
+  // Comment out the mainnet configuration for now
+  // mainnet: {
+  //   provider: () => mainnetProvider,
+  //   network_id: 1, // Mainnet's id
+  //   gas: 5500000,
+  //   confirmations: 2,
+  //   timeoutBlocks: 200,
+  //   skipDryRun: false
+  // }
 };

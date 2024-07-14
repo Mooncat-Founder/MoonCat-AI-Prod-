@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const { networks } = require('./networks');
+const networks = require('./networks');
 
 dotenv.config();
 
