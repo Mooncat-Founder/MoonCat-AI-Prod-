@@ -1,2 +1,4 @@
 # Envionment Variables
 .env
+keypair
+keypair.pub
