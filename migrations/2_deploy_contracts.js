@@ -1,8 +1,7 @@
-
 require('dotenv').config();
 const VariableToken = artifacts.require("VariableToken");
 
-export default function(deployer) {
+module.exports = function(deployer) {
     // Retrieve environment variables
     const name = process.env.TOKEN_NAME;
     const symbol = process.env.TOKEN_SYMBOL;
