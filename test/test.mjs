@@ -10,6 +10,8 @@ const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 const infuraProjectId = process.env.INFURA_PROJECT_ID;
 const infuraProjectSecret = process.env.INFURA_PROJECT_SECRET;
 
+//*Deployment Tests *//
+
 if (!privateKey || !infuraProjectId || !infuraProjectSecret) {
   throw new Error('Missing environment variables');
 }

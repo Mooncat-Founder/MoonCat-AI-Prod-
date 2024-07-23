@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const networks = require('./networks');
+const networks = require('./networks.js');
 
 dotenv.config();
 
@@ -10,7 +10,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "0.8.24",
+      version: "0.8.19",
       settings: {
         optimizer: {
           enabled: true,
