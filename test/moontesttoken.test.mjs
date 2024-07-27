@@ -6,8 +6,12 @@ import MoontestToken from '../build/contracts/MoontestToken.json' assert { type:
 
 dotenv.config();
 
-const web3 = new Web3(new HDWalletProvider(process.env.DEPLOYER_PRIVATE_KEY, `https://sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`));
+const provider = new HDWalletProvider({
+  privateKeys: [process.env.DEPLOYER_PRIVATE_KEY],
+  providerOrUrl: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
+});
 
+const web3 = new Web3(provider);
 const tokenContract = new web3.eth.Contract(MoontestToken.abi);
 const accounts = await web3.eth.getAccounts();
 const [owner, user1, user2] = accounts;
@@ -61,4 +65,9 @@ describe("MoontestToken", function() {
     expect(user1Balance.toString()).to.equal("0");
     expect(totalSupply.toString()).to.equal("999950");
   });
+
+  after(async () => {
+    provider.engine.stop(); // Properly stop the provider
+  });
 });
+

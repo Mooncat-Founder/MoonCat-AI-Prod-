@@ -6572,12 +6572,12 @@
     "11155111": {
       "events": {},
       "links": {},
-      "address": "0x6dd1e5e2a4A7FD3349F7aba4A8B390c905738e6e",
-      "transactionHash": "0x966b2a0f0052c8c00f1f9610abb55304886f7d709b9e9e31ff5920a684f82989"
+      "address": "0x582405e27cC51f007e7159481Bd00b9120fC4A1e",
+      "transactionHash": "0x9ec2c989abbb79c0f5edffd9927eb5251a4d8c6dad5e88e1875f9cadc7befcef"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-07-21T02:11:40.700Z",
+  "updatedAt": "2024-07-27T22:30:17.148Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

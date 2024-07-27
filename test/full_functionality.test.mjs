@@ -9,10 +9,7 @@ dotenv.config();
 
 const provider = new HDWalletProvider({
   privateKeys: [process.env.DEPLOYER_PRIVATE_KEY],
-  providerOrUrl: `https://sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  headers: {
-    'Infura-Secret': process.env.INFURA_PROJECT_SECRET
-  }
+  providerOrUrl: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
 });
 
 const web3 = new Web3(provider);
@@ -93,9 +90,8 @@ describe("Full Functionality Tests", function() {
     const balance = await stakingContract.methods.balanceOf(owner).call();
     expect(balance.toString()).to.equal('0');
   });
-/**  after(async () => {
-    provider.engine.stop();
-    process.exit(0); // Ensure the script terminates correctly
-  }); */
 
+  after(async () => {
+    provider.engine.stop(); // Properly stop the provider
+  });
 });

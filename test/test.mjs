@@ -7,18 +7,17 @@ import contractABI from '../build/contracts/MoonTestToken.json' assert { type: '
 dotenv.config();
 
 const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
-const infuraProjectId = process.env.INFURA_PROJECT_ID;
-const infuraProjectSecret = process.env.INFURA_PROJECT_SECRET;
+const alchemyApiKey = process.env.ALCHEMY_API_KEY;
 
 //*Deployment Tests *//
 
-if (!privateKey || !infuraProjectId || !infuraProjectSecret) {
+if (!privateKey || !alchemyApiKey) {
   throw new Error('Missing environment variables');
 }
 
 const contractBytecode = contractABI.bytecode;
 
-describe('Infura Endpoint and Contract Deployment', function() {
+describe('Alchemy Endpoint and Contract Deployment', function() {
   this.timeout(0);
 
   let web3;
@@ -27,37 +26,42 @@ describe('Infura Endpoint and Contract Deployment', function() {
   let provider;
 
   before(async () => {
+    console.log('Setting up provider...');
     provider = new HDWalletProvider({
       privateKeys: [privateKey],
-      providerOrUrl: `https://sepolia.infura.io/v3/${infuraProjectId}`,
-      headers: { Authorization: `Basic ${Buffer.from(`${infuraProjectId}:${infuraProjectSecret}`).toString('base64')}` }
+      providerOrUrl: `https://eth-sepolia.g.alchemy.com/v2/${alchemyApiKey}`
     });
 
     web3 = new Web3(provider);
     accounts = await web3.eth.getAccounts();
+    console.log('Accounts:', accounts);
   });
 
-  it('should connect to Infura endpoint', async () => {
+  it('should connect to Alchemy endpoint', async () => {
+    console.log('Connecting to Alchemy endpoint...');
     const latestBlock = await web3.eth.getBlockNumber();
+    console.log('Latest Block Number:', latestBlock);
     assert.isNumber(Number(latestBlock), 'Latest block is a number');
-    console.log(`Latest Block Number: ${Number(latestBlock)}`);
     await sleep(1000); // Add delay to avoid rate limit
   });
 
   it('should deploy MoonTestToken contract', async () => {
+    console.log('Deploying MoonTestToken contract...');
     const MoonTestToken = new web3.eth.Contract(contractABI.abi);
     moonTestToken = await MoonTestToken.deploy({
       data: contractBytecode,
       arguments: [web3.utils.toWei('1000000', 'ether')] // Initial supply
     }).send({ from: accounts[0], gas: 5500000 });
 
+    console.log('MoonTestToken contract deployed at:', moonTestToken.options.address);
     assert.ok(moonTestToken.options.address, 'Contract deployed');
-    console.log(`Contract Address: ${moonTestToken.options.address}`);
     await sleep(1000); // Add delay to avoid rate limit
   });
 
   it('should have initial supply of tokens', async () => {
+    console.log('Checking initial supply of tokens...');
     const totalSupply = await moonTestToken.methods.totalSupply().call();
+    console.log('Total supply of tokens:', totalSupply);
     assert.equal(totalSupply, web3.utils.toWei('1000000', 'ether'), 'Initial supply is correct');
   });
 

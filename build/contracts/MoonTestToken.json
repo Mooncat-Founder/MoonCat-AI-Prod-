@@ -12504,14 +12504,90 @@
   },
   "networks": {
     "11155111": {
-      "events": {},
+      "events": {
+        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "spender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Approval",
+          "type": "event"
+        },
+        "0xcba4e7d65d417006a9c5169536f17b995cc389a01daacf76926ff979031bab49": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "initialSupply",
+              "type": "uint256"
+            }
+          ],
+          "name": "ConstructorParams",
+          "type": "event"
+        },
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Transfer",
+          "type": "event"
+        }
+      },
       "links": {},
-      "address": "0x793D62E61371118566F3e325ac9155273e40Aa16",
-      "transactionHash": "0xf028844ca0688ee4800cf767d4106678e211c51433beed5e49606c4202f86ad3"
+      "address": "0x38efc4e55a90C2c3A297Fb637964C97bd72513e3",
+      "transactionHash": "0xf669a87d0058fd4de9356483b894af66f8d13344ef34aad6194123cb5262cd94"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-07-21T02:11:40.692Z",
+  "updatedAt": "2024-07-27T22:30:17.142Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

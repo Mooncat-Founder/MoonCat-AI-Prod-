@@ -7,8 +7,12 @@ import Staking from '../build/contracts/Staking.json' assert { type: 'json' };
 
 dotenv.config();
 
-const web3 = new Web3(new HDWalletProvider(process.env.DEPLOYER_PRIVATE_KEY, `https://sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`));
+const provider = new HDWalletProvider({
+  privateKeys: [process.env.DEPLOYER_PRIVATE_KEY],
+  providerOrUrl: `https://eth-sepolia.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
+});
 
+const web3 = new Web3(provider);
 const tokenContract = new web3.eth.Contract(MoontestToken.abi);
 const stakingContract = new web3.eth.Contract(Staking.abi);
 const accounts = await web3.eth.getAccounts();
@@ -42,9 +46,26 @@ describe("Staking", () => {
 
   it("should allow unstaking", async () => {
     await staking.methods.requestUnlock().send({ from: owner });
-    await web3.eth.sendTransaction({ from: owner, to: owner, value: 0, gas: 3000000, gasPrice: '20000000000' }); // Simulate passing time
+    const advanceTime = async (seconds) => {
+      await web3.currentProvider.send({
+        jsonrpc: '2.0',
+        method: 'evm_increaseTime',
+        params: [seconds],
+        id: new Date().getTime(),
+      }, () => {});
+      await web3.currentProvider.send({
+        jsonrpc: '2.0',
+        method: 'evm_mine',
+        id: new Date().getTime(),
+      }, () => {});
+    };
+    await advanceTime(604800); // Advance 1 week
     await staking.methods.unstake().send({ from: owner });
     const balance = await staking.methods.balanceOf(owner).call();
     expect(balance).to.equal('0');
+  });
+
+  after(async () => {
+    provider.engine.stop(); // Properly stop the provider
   });
 });
