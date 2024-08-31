@@ -1,0 +1,509 @@
+{
+  "MoontestToken": {
+    "address": "0x1c8aE66f88f85aC3C279c98E9101e2b22C32a308",
+    "abi": [
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "_name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "_symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_initialSupply",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor",
+        "signature": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "Approval",
+        "type": "event",
+        "signature": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "initialSupply",
+            "type": "uint256"
+          }
+        ],
+        "name": "ConstructorParams",
+        "type": "event",
+        "signature": "0xcba4e7d65d417006a9c5169536f17b995cc389a01daacf76926ff979031bab49"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "Transfer",
+        "type": "event",
+        "signature": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "allowance",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0xdd62ed3e"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x70a08231"
+      },
+      {
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+          {
+            "internalType": "uint8",
+            "name": "",
+            "type": "uint8"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x313ce567"
+      },
+      {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x06fdde03"
+      },
+      {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x95d89b41"
+      },
+      {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x18160ddd"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_value",
+            "type": "uint256"
+          }
+        ],
+        "name": "transfer",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0xa9059cbb"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_spender",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_value",
+            "type": "uint256"
+          }
+        ],
+        "name": "approve",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0x095ea7b3"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_value",
+            "type": "uint256"
+          }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0x23b872dd"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_value",
+            "type": "uint256"
+          }
+        ],
+        "name": "burn",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0x42966c68"
+      }
+    ]
+  },
+  "Staking": {
+    "address": "0x731C84E69582e24567DdA591354a096a5916Ccd3",
+    "abi": [
+      {
+        "inputs": [
+          {
+            "internalType": "contract MoontestToken",
+            "name": "_token",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor",
+        "signature": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "since",
+            "type": "uint256"
+          }
+        ],
+        "name": "Staked",
+        "type": "event",
+        "signature": "0x1449c6dd7851abc30abf37f57715f492010519147cc2652fbc38202c18a6ee90"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "unlockRequestTime",
+            "type": "uint256"
+          }
+        ],
+        "name": "UnlockRequested",
+        "type": "event",
+        "signature": "0xd843ce9ef55b27026be6c5e44e9f58097e0ebfa0d9d2d5823cb8ffa779585170"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "reward",
+            "type": "uint256"
+          }
+        ],
+        "name": "Unstaked",
+        "type": "event",
+        "signature": "0x7fc4727e062e336010f2c282598ef5f14facb3de68cf8195c2f23e1454b2b74e"
+      },
+      {
+        "inputs": [],
+        "name": "UNLOCK_PERIOD",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x259a28cf"
+      },
+      {
+        "inputs": [],
+        "name": "rewardRate",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x7b0a47ee"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "stakes",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "since",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "unlockRequestTime",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0x16934fc4"
+      },
+      {
+        "inputs": [],
+        "name": "token",
+        "outputs": [
+          {
+            "internalType": "contract MoontestToken",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true,
+        "signature": "0xfc0c546a"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "stake",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0xa694fc3a"
+      },
+      {
+        "inputs": [],
+        "name": "requestUnlock",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0x56e19a2c"
+      },
+      {
+        "inputs": [],
+        "name": "unstake",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "signature": "0x2def6620"
+      }
+    ]
+  }
+}
