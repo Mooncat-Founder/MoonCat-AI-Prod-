@@ -26,10 +26,16 @@ contract MoontestToken {
     }
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
+        uint256 taxAmount = _value * taxRate / 10000;
+        uint256 amountAfterTax = _value - taxAmount;
+
         require(balanceOf[msg.sender] >= _value, "Insufficient balance");
         balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
-        emit Transfer(msg.sender, _to, _value);
+        balanceOf[_to] += amountAfterTax;
+        balanceOf[taxCollector] += taxAmount;
+
+        emit Transfer(msg.sender, _to, amountAfterTax);
+        emit Transfer(msg.sender, taxCollector, taxAmount);
         return true;
     }
 
@@ -56,4 +62,8 @@ contract MoontestToken {
         emit Transfer(msg.sender, address(0), _value);
         return true;
     }
+    address public taxCollector; // Address where the tax is sent
+uint256 public taxRate = 100; // Represents 1% tax (where 100 is equivalent to 1%)
+
+
 }
