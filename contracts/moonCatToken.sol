@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-contract MoontestToken {
+import "@openzeppelin/contracts/access/Ownable.sol"; 
+
+contract MoonCatToken {
     string public name;
     string public symbol;
     uint8 public decimals = 18;

@@ -3,7 +3,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 const { Alchemy, Network } = require('alchemy-sdk');
 const fs = require('fs');
 const path = require('path');
-const MoontestToken = artifacts.require("MoontestToken");
+const MoonCatToken = artifacts.require("MoonCatToken");
 const Staking = artifacts.require("Staking");
 
 const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
@@ -31,10 +31,10 @@ const provider = new HDWalletProvider({
 
 module.exports = async function(deployer) {
   try {
-    // Deploy the MoontestToken contract
-    await deployer.deploy(MoontestToken, tokenName, tokenSymbol, tokenInitialSupply);
-    const tokenInstance = await MoontestToken.deployed();
-    console.log("MoontestToken deployed at:", tokenInstance.address);
+    // Deploy the MoonCatToken contract
+    await deployer.deploy(MoonCatToken, tokenName, tokenSymbol, tokenInitialSupply);
+    const tokenInstance = await MoonCatToken.deployed();
+    console.log("MoonCatToken deployed at:", tokenInstance.address);
 
     // Deploy the Staking contract
     await deployer.deploy(Staking, tokenInstance.address);
@@ -43,7 +43,7 @@ module.exports = async function(deployer) {
 
     // Prepare the contract data to be saved
     const deploymentData = {
-      MoontestToken: {
+      MoonCatToken: {
         address: tokenInstance.address,
         abi: tokenInstance.abi
       },
@@ -60,7 +60,7 @@ module.exports = async function(deployer) {
     }
 
     // Save the contract data to a file
-    const filePath = path.resolve(directoryPath, `MoontestTokenAndStaking-${deployer.network}.json`);
+    const filePath = path.resolve(directoryPath, `MoonCatTokenAndStaking-${deployer.network}.json`);
     fs.writeFileSync(filePath, JSON.stringify(deploymentData, null, 2));
 
     console.log(`Contract ABI and Address saved to ${filePath}`);

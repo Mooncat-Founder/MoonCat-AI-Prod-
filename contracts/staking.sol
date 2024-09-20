@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
 
-import "./moontesttoken.sol";
+pragma solidity ^0.8.20;
+
+import "./moonCatToken.sol";
 import "@openzeppelin/contracts/access/Ownable.sol"; // Import OpenZeppelin's Ownable contract
 
-contract Staking is Ownable {  // Inherit Ownable for ownership access control
-    MoontestToken public token;
+contract Staking is Ownable {
+    MoonCatToken public token;
 
     struct Stake {
         uint256 amount;
@@ -27,7 +28,8 @@ contract Staking is Ownable {  // Inherit Ownable for ownership access control
     event UnlockRequested(address indexed user, uint256 unlockRequestTime, string stakeType);
     event Unstaked(address indexed user, uint256 amount, uint256 reward, string stakeType);
 
-    constructor(MoontestToken _token) {
+    // Pass the owner's address to the Ownable constructor
+    constructor(MoonCatToken _token) Ownable(msg.sender) {
         token = _token;
         rewardRate7Days = 9.512E12; // Set your initial reward rates
         rewardRate1Year = 3.5E14;   // Higher reward rate for 1-year lock
