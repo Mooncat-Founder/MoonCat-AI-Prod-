@@ -25,7 +25,7 @@ import {
 } from 'web3-types';
 import { ConfigHardforkMismatchError, ConfigChainMismatchError } from 'web3-errors';
 import { isNullish, toHex } from 'web3-utils';
-import { TransactionTypeParser } from './types.js';
+import { CustomTransactionSchema, TransactionTypeParser } from './types.js';
 // eslint-disable-next-line import/no-cycle
 import { TransactionBuilder } from './web3_context.js';
 import { Web3EventEmitter } from './web3_event_emitter.js';
@@ -59,6 +59,7 @@ export interface Web3ConfigOptions {
 	};
 	transactionBuilder?: TransactionBuilder;
 	transactionTypeParser?: TransactionTypeParser;
+	customTransactionSchema?: CustomTransactionSchema;
 	defaultReturnFormat: DataFormat;
 }
 
@@ -101,6 +102,7 @@ export abstract class Web3Config
 		},
 		transactionBuilder: undefined,
 		transactionTypeParser: undefined,
+		customTransactionSchema: undefined,
 		defaultReturnFormat: DEFAULT_RETURN_FORMAT,
 	};
 
@@ -114,6 +116,15 @@ export abstract class Web3Config
 		const keys = Object.keys(options) as (keyof Web3ConfigOptions)[];
 		for (const key of keys) {
 			this._triggerConfigChange(key, options[key]);
+
+			if (
+				!isNullish(options[key]) &&
+				typeof options[key] === 'number' &&
+				key === 'maxListenersWarningThreshold'
+			) {
+				// additionally set in event emitter
+				this.setMaxListenerWarningThreshold(Number(options[key]));
+			}
 		}
 		Object.assign(this.config, options);
 	}
@@ -144,7 +155,7 @@ export abstract class Web3Config
 	 * The `contractDataInputFill` options property will allow you to set the hash of the method signature and encoded parameters to the property
 	 * either `data`, `input` or both within your contract.
 	 * This will affect the contracts send, call and estimateGas methods
-	 * Default is `input`.
+	 * Default is `data`.
 	 */
 	public get contractDataInputFill() {
 		return this.config.contractDataInputFill;
@@ -509,6 +520,15 @@ export abstract class Web3Config
 	public set transactionTypeParser(val) {
 		this._triggerConfigChange('transactionTypeParser', val);
 		this.config.transactionTypeParser = val;
+	}
+
+	public get customTransactionSchema(): CustomTransactionSchema | undefined {
+		return this.config.customTransactionSchema;
+	}
+
+	public set customTransactionSchema(schema: CustomTransactionSchema | undefined) {
+		this._triggerConfigChange('customTransactionSchema', schema);
+		this.config.customTransactionSchema = schema;
 	}
 
 	private _triggerConfigChange<K extends keyof Web3ConfigOptions>(

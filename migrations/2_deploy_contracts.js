@@ -66,7 +66,5 @@ module.exports = async function(deployer) {
     console.log(`Contract ABI and Address saved to ${filePath}`);
   } catch (error) {
     console.error("Deployment failed:", error);
-  } finally {
-    provider.engine.stop();
   }
 };

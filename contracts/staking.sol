@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import "./moonCatToken.sol";
 import "@openzeppelin/contracts/access/Ownable.sol"; // Import OpenZeppelin's Ownable contract
+import "./MoonCatToken.sol"; // Ensure the correct filename and casing
 
 contract Staking is Ownable {
     MoonCatToken public token;
@@ -28,15 +28,15 @@ contract Staking is Ownable {
     event UnlockRequested(address indexed user, uint256 unlockRequestTime, string stakeType);
     event Unstaked(address indexed user, uint256 amount, uint256 reward, string stakeType);
 
-    // Pass the owner's address to the Ownable constructor
+    // Corrected constructor in Staking.sol
     constructor(MoonCatToken _token) Ownable(msg.sender) {
         token = _token;
-        rewardRate7Days = 9.512E12; // Set your initial reward rates
-        rewardRate1Year = 3.5E14;   // Higher reward rate for 1-year lock
+        rewardRate7Days = 1.75E12; // Set your initial reward rates
+        rewardRate1Year = 3.5E14;  // Higher reward rate for 1-year lock
     }
 
     // -------------------- Owner-Only Functions to Change Reward Rates --------------------
-    
+
     function setRewardRate7Days(uint256 _newRate) public onlyOwner {
         rewardRate7Days = _newRate;
     }
@@ -80,10 +80,15 @@ contract Staking is Ownable {
         Stake storage userStake = stakes7Days[msg.sender];
         require(userStake.amount > 0, "No stake found");
         require(userStake.unlockRequestTime > 0, "Unlock not requested");
-        require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_7DAYS, "Unlock period not reached");
+        require(
+            block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_7DAYS,
+            "Unlock period not reached"
+        );
 
         // Calculate reward up to unlock request time
-        uint256 reward = (userStake.unlockRequestTime - userStake.since) * rewardRate7Days * userStake.amount / 1e18;
+        uint256 reward = ((userStake.unlockRequestTime - userStake.since) *
+            rewardRate7Days *
+            userStake.amount) / 1e18;
 
         uint256 totalAmount = userStake.amount + reward;
 
@@ -97,9 +102,14 @@ contract Staking is Ownable {
     function withdrawInterest7Days() public {
         Stake storage userStake = stakes7Days[msg.sender];
         require(userStake.amount > 0, "No stake found");
-        require(userStake.unlockRequestTime == 0, "Cannot withdraw interest while unlock is requested");
+        require(
+            userStake.unlockRequestTime == 0,
+            "Cannot withdraw interest while unlock is requested"
+        );
 
-        uint256 reward = (block.timestamp - userStake.since) * rewardRate7Days * userStake.amount / 1e18;
+        uint256 reward = ((block.timestamp - userStake.since) *
+            rewardRate7Days *
+            userStake.amount) / 1e18;
         require(reward > 0, "No interest to withdraw");
 
         userStake.since = block.timestamp; // Reset since to current time after withdrawing interest
@@ -139,9 +149,14 @@ contract Staking is Ownable {
         Stake storage userStake = stakes1Year[msg.sender];
         require(userStake.amount > 0, "No stake found");
         require(userStake.unlockRequestTime > 0, "Unlock not requested");
-        require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR, "Unlock period not reached");
+        require(
+            block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR,
+            "Unlock period not reached"
+        );
 
-        uint256 reward = (userStake.unlockRequestTime - userStake.since) * rewardRate1Year * userStake.amount / 1e18;
+        uint256 reward = ((userStake.unlockRequestTime - userStake.since) *
+            rewardRate1Year *
+            userStake.amount) / 1e18;
 
         uint256 totalAmount = userStake.amount + reward;
 
@@ -155,9 +170,14 @@ contract Staking is Ownable {
     function withdrawInterest1Year() public {
         Stake storage userStake = stakes1Year[msg.sender];
         require(userStake.amount > 0, "No stake found");
-        require(userStake.unlockRequestTime == 0, "Cannot withdraw interest while unlock is requested");
+        require(
+            userStake.unlockRequestTime == 0,
+            "Cannot withdraw interest while unlock is requested"
+        );
 
-        uint256 reward = (block.timestamp - userStake.since) * rewardRate1Year * userStake.amount / 1e18;
+        uint256 reward = ((block.timestamp - userStake.since) *
+            rewardRate1Year *
+            userStake.amount) / 1e18;
         require(reward > 0, "No interest to withdraw");
 
         userStake.since = block.timestamp; // Reset since to current time
