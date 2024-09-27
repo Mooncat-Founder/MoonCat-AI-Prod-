@@ -1,77 +1,72 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.27;
 
-contract MoonCatToken {
-    string public name;
-    string public symbol;
-    uint8 public decimals = 18;
-    uint256 public totalSupply;
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-    address public taxCollector; // Moved here
-    uint256 public taxRate = 100; // Moved here (Represents 1% tax where 100 is equivalent to 1%)
+contract MoonCatToken is ERC1155 {
+    uint256 public constant STAKING_TOKEN = 1;  // ID 1 for staking token
+    uint256 public constant GOVERNANCE_TOKEN = 2;  // ID 2 for governance token
 
-    mapping(address => uint256) public balanceOf;
-    mapping(address => mapping(address => uint256)) public allowance;
+    uint256 public totalSupplyStaking;
+    uint256 public totalSupplyGovernance;
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-    event ConstructorParams(string name, string symbol, uint256 initialSupply);
+    uint256 public taxRate = 100;  // 1% tax
+    address public taxCollector;
+    address public owner;
 
-    // Constructor
-    constructor(string memory _name, string memory _symbol, uint256 _initialSupply) {
-        require(_initialSupply > 0, "Initial supply must be greater than zero");
-
-        emit ConstructorParams(_name, _symbol, _initialSupply);
-        name = _name;
-        symbol = _symbol;
-        totalSupply = _initialSupply * (10 ** uint256(decimals));
-        balanceOf[msg.sender] = totalSupply;
-        taxCollector = msg.sender; // Initialize taxCollector
-        emit Transfer(address(0), msg.sender, totalSupply);
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
     }
 
-    function transfer(address _to, uint256 _value) public returns (bool success) {
-        uint256 taxAmount = (_value * taxRate) / 10000;
-        uint256 amountAfterTax = _value - taxAmount;
-
-        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += amountAfterTax;
-        balanceOf[taxCollector] += taxAmount;
-
-        emit Transfer(msg.sender, _to, amountAfterTax);
-        emit Transfer(msg.sender, taxCollector, taxAmount);
-        return true;
+    constructor() ERC1155("https://mooncat.ai/metadata/{id}.json") {
+        owner = msg.sender;  // Set deployer as the initial owner
+        taxCollector = msg.sender;  // Initialize the tax collector
     }
 
-    function approve(address _spender, uint256 _value) public returns (bool success) {
-        allowance[msg.sender][_spender] = _value;
-        emit Approval(msg.sender, _spender, _value);
-        return true;
+    // Transfer ownership
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "New owner cannot be the zero address");
+        owner = newOwner;
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        uint256 taxAmount = (_value * taxRate) / 10000;
-        uint256 amountAfterTax = _value - taxAmount;
-
-        require(_value <= balanceOf[_from], "Insufficient balance");
-        require(_value <= allowance[_from][msg.sender], "Allowance exceeded");
-
-        balanceOf[_from] -= _value;
-        balanceOf[_to] += amountAfterTax;
-        balanceOf[taxCollector] += taxAmount;
-        allowance[_from][msg.sender] -= _value;
-
-        emit Transfer(_from, _to, amountAfterTax);
-        emit Transfer(_from, taxCollector, taxAmount);
-        return true;
+    // Mint Staking Token
+    function mintStakingToken(address to, uint256 amount) external onlyOwner {
+        totalSupplyStaking += amount;
+        _mint(to, STAKING_TOKEN, amount, "");
     }
 
-    function burn(uint256 _value) public returns (bool success) {
-        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
-        balanceOf[msg.sender] -= _value;
-        totalSupply -= _value;
-        emit Transfer(msg.sender, address(0), _value);
-        return true;
+    // Mint Governance Token (issued when users stake)
+    function mintGovernanceToken(address to, uint256 amount) external onlyOwner {
+        totalSupplyGovernance += amount;
+        _mint(to, GOVERNANCE_TOKEN, amount, "");
+    }
+
+    // Override the safeTransferFrom to include tax logic
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public override {
+        uint256 taxAmount = (amount * taxRate) / 10000;
+        uint256 amountAfterTax = amount - taxAmount;
+
+        require(balanceOf(from, id) >= amount, "Insufficient balance");
+
+        // Send tax to taxCollector and remaining amount to recipient
+        _safeTransferFrom(from, to, id, amountAfterTax, data);
+        _safeTransferFrom(from, taxCollector, id, taxAmount, data);
+    }
+
+    // Set tax rate
+    function setTaxRate(uint256 newTaxRate) external onlyOwner {
+        taxRate = newTaxRate;
+    }
+
+    // Set tax collector address
+    function setTaxCollector(address newCollector) external onlyOwner {
+        taxCollector = newCollector;
     }
 }

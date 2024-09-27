@@ -11,14 +11,15 @@ module.exports = {
     sepolia: {
       provider: () => new HDWalletProvider({
         privateKeys: [privateKey],
-        providerOrUrl: `https://eth-sepolia.g.alchemy.com/v2/${alchemyApiKey}`
+        providerOrUrl: `wss://eth-sepolia.g.alchemy.com/v2/${alchemyApiKey}`  // Ensure Sepolia is used, not mainnet
       }),
-      network_id: 11155111,
-      gas: 5500000,
-      confirmations: 2,
-      timeoutBlocks: 200,
-      networkCheckTimeout: 10000,
-      skipDryRun: true
+      network_id: 11155111,  // Sepolia's network ID
+      gas: 7000000,          // Custom gas limit (adjust as necessary)
+      // gasPrice: 50000000000,  // Custom gas price (50 Gwei) - Uncomment if necessary
+      confirmations: 2,      // Wait for 2 confirmations
+      timeoutBlocks: 200,    // Timeout for blocks
+      networkCheckTimeout: 10000,  // Network check timeout
+      skipDryRun: true       // Skip dry run before migrations
     }
   },
   compilers: {
