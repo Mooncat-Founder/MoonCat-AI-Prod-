@@ -4,7 +4,7 @@ const { Alchemy, Network } = require('alchemy-sdk');
 const fs = require('fs');
 const path = require('path');
 const MoonCatToken = artifacts.require("MoonCatToken");
-const Staking = artifacts.require("Staking");
+const Staking = artifacts.require("MoonCatStaking");
 
 const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 const alchemyApiKey = process.env.ALCHEMY_API_KEY;
