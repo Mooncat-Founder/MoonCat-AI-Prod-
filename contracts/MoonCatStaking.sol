@@ -35,8 +35,8 @@ contract MoonCatStaking {
     constructor(MoonCatToken _token) {
         token = _token;
         owner = msg.sender;
-        rewardRate7Days = 1.75E12; // Set your initial reward rates
-        rewardRate1Year = 3.5E14;  // Higher reward rate for 1-year lock
+        rewardRate7Days = 6.34E11; // Set your initial reward rates
+        rewardRate1Year = 1.108E12;  // Higher reward rate for 1-year lock
     }
 
     // Owner functions to update reward rates
