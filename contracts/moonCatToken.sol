@@ -1,15 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.27;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract MoonCatToken is ERC1155 {
-    uint256 public constant STAKING_TOKEN = 1;  // ID 1 for staking token
-    uint256 public constant GOVERNANCE_TOKEN = 2;  // ID 2 for governance token
-
-    uint256 public totalSupplyStaking;
-    uint256 public totalSupplyGovernance;
-
+contract MoonCatToken is ERC20 {
     uint256 public taxRate = 100;  // 1% tax
     address public taxCollector;
     address public owner;
@@ -19,9 +13,10 @@ contract MoonCatToken is ERC1155 {
         _;
     }
 
-    constructor() ERC1155("https://mooncat.ai/metadata/{id}.json") {
-        owner = msg.sender;  // Set deployer as the initial owner
+    constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
+        owner = msg.sender;
         taxCollector = msg.sender;  // Initialize the tax collector
+        _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));  // Mint the initial supply
     }
 
     // Transfer ownership
@@ -30,34 +25,33 @@ contract MoonCatToken is ERC1155 {
         owner = newOwner;
     }
 
-    // Mint Staking Token
-    function mintStakingToken(address to, uint256 amount) external onlyOwner {
-        totalSupplyStaking += amount;
-        _mint(to, STAKING_TOKEN, amount, "");
-    }
-
-    // Mint Governance Token (issued when users stake)
-    function mintGovernanceToken(address to, uint256 amount) external onlyOwner {
-        totalSupplyGovernance += amount;
-        _mint(to, GOVERNANCE_TOKEN, amount, "");
-    }
-
-    // Override the safeTransferFrom to include tax logic
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public override {
+    // Override the transfer function to include tax logic
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
         uint256 taxAmount = (amount * taxRate) / 10000;
         uint256 amountAfterTax = amount - taxAmount;
 
-        require(balanceOf(from, id) >= amount, "Insufficient balance");
+        _transfer(_msgSender(), recipient, amountAfterTax);
+        _transfer(_msgSender(), taxCollector, taxAmount);
+        return true;
+    }
 
-        // Send tax to taxCollector and remaining amount to recipient
-        _safeTransferFrom(from, to, id, amountAfterTax, data);
-        _safeTransferFrom(from, taxCollector, id, taxAmount, data);
+    // Override the transferFrom function to include tax logic
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public override returns (bool) {
+        uint256 taxAmount = (amount * taxRate) / 10000;
+        uint256 amountAfterTax = amount - taxAmount;
+
+        _transfer(sender, recipient, amountAfterTax);
+        _transfer(sender, taxCollector, taxAmount);
+
+        uint256 currentAllowance = allowance(sender, _msgSender());
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        _approve(sender, _msgSender(), currentAllowance - amount);
+
+        return true;
     }
 
     // Set tax rate

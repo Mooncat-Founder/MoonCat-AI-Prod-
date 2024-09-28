@@ -8,8 +8,13 @@ module.exports = async function (deployer, network) {
   try {
     console.log(`Starting deployment on network: ${network}`);
 
+    // Load parameters from .env
+    const tokenName = process.env.TOKEN_NAME;
+    const tokenSymbol = process.env.TOKEN_SYMBOL;
+    const initialSupply = process.env.TOKEN_INITIAL_SUPPLY;
+
     // Deploy the MoonCatToken contract
-    await deployer.deploy(MoonCatToken);
+    await deployer.deploy(MoonCatToken, tokenName, tokenSymbol, initialSupply);
     const tokenInstance = await MoonCatToken.deployed();
     console.log("MoonCatToken deployed at:", tokenInstance.address);
     console.log(`Token deployment transaction hash: ${tokenInstance.transactionHash}`);

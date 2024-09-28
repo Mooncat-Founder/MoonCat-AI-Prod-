@@ -25,7 +25,6 @@ contract MoonCatStaking {
     event Staked(address indexed user, uint256 amount, uint256 since, string stakeType);
     event UnlockRequested(address indexed user, uint256 unlockRequestTime, string stakeType);
     event Unstaked(address indexed user, uint256 amount, uint256 reward, string stakeType);
-    event GovernanceTokenMinted(address indexed user, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Caller is not the owner");
@@ -35,8 +34,8 @@ contract MoonCatStaking {
     constructor(MoonCatToken _token) {
         token = _token;
         owner = msg.sender;
-        rewardRate7Days = 6.34E11; // Set your initial reward rates
-        rewardRate1Year = 1.108E12;  // Higher reward rate for 1-year lock
+        rewardRate7Days = 6.34E11;  // Set your initial reward rates
+        rewardRate1Year = 1.108E12; // Higher reward rate for 1-year lock
     }
 
     // Owner functions to update reward rates
@@ -52,10 +51,10 @@ contract MoonCatStaking {
 
     function stake7Days(uint256 _amount) public {
         require(_amount > 0, "Cannot stake 0");
-        require(token.balanceOf(msg.sender, token.STAKING_TOKEN()) >= _amount, "Insufficient staking token balance");
+        require(token.balanceOf(msg.sender) >= _amount, "Insufficient staking token balance");
 
         // Transfer staking tokens from user to contract
-        token.safeTransferFrom(msg.sender, address(this), token.STAKING_TOKEN(), _amount, "");
+        token.transferFrom(msg.sender, address(this), _amount);
 
         Stake storage userStake = stakes7Days[msg.sender];
 
@@ -67,11 +66,6 @@ contract MoonCatStaking {
             userStake.since = block.timestamp;
         }
         userStake.unlockRequestTime = 0;
-
-        // Mint governance tokens as a reward for staking
-        uint256 governanceTokenAmount = _amount / 10; // For example, mint 10% of the staking amount
-        token.mintGovernanceToken(msg.sender, governanceTokenAmount);
-        emit GovernanceTokenMinted(msg.sender, governanceTokenAmount);
 
         emit Staked(msg.sender, _amount, block.timestamp, "7-Day");
     }
@@ -98,7 +92,7 @@ contract MoonCatStaking {
         uint256 totalAmount = userStake.amount + reward;
 
         // Transfer staking tokens back to the user
-        token.safeTransferFrom(address(this), msg.sender, token.STAKING_TOKEN(), totalAmount, "");
+        token.transfer(msg.sender, totalAmount);
 
         delete stakes7Days[msg.sender];
 
@@ -114,17 +108,17 @@ contract MoonCatStaking {
         require(reward > 0, "No interest to withdraw");
 
         userStake.since = block.timestamp; // Reset since to current time
-        token.safeTransferFrom(address(this), msg.sender, token.STAKING_TOKEN(), reward, "");
+        token.transfer(msg.sender, reward);
     }
 
     // -------------------- 1-Year Staking Functions --------------------
 
     function stake1Year(uint256 _amount) public {
         require(_amount > 0, "Cannot stake 0");
-        require(token.balanceOf(msg.sender, token.STAKING_TOKEN()) >= _amount, "Insufficient staking token balance");
+        require(token.balanceOf(msg.sender) >= _amount, "Insufficient staking token balance");
 
         // Transfer staking tokens from user to contract
-        token.safeTransferFrom(msg.sender, address(this), token.STAKING_TOKEN(), _amount, "");
+        token.transferFrom(msg.sender, address(this), _amount);
 
         Stake storage userStake = stakes1Year[msg.sender];
 
@@ -135,11 +129,6 @@ contract MoonCatStaking {
             userStake.since = block.timestamp;
         }
         userStake.unlockRequestTime = 0;
-
-        // Mint governance tokens as a reward for staking
-        uint256 governanceTokenAmount = _amount / 10; // For example, mint 10% of the staking amount
-        token.mintGovernanceToken(msg.sender, governanceTokenAmount);
-        emit GovernanceTokenMinted(msg.sender, governanceTokenAmount);
 
         emit Staked(msg.sender, _amount, block.timestamp, "1-Year");
     }
@@ -166,7 +155,7 @@ contract MoonCatStaking {
         uint256 totalAmount = userStake.amount + reward;
 
         // Transfer staking tokens back to the user
-        token.safeTransferFrom(address(this), msg.sender, token.STAKING_TOKEN(), totalAmount, "");
+        token.transfer(msg.sender, totalAmount);
 
         delete stakes1Year[msg.sender];
 
@@ -182,6 +171,6 @@ contract MoonCatStaking {
         require(reward > 0, "No interest to withdraw");
 
         userStake.since = block.timestamp; // Reset since to current time
-        token.safeTransferFrom(address(this), msg.sender, token.STAKING_TOKEN(), reward, "");
+        token.transfer(msg.sender, reward);
     }
 }
