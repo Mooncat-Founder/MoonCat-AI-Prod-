@@ -15,7 +15,7 @@ module.exports = {
         pollingInterval: 4000 
       }),
       network_id: 84532,  // Base Sepolia's network ID
-      gas: 8000000,          // Adjust based on actual usage
+//      gas: 8000000,          // Adjust based on actual usage
 //      gasPrice: 5000000000,  // Example gas price (5 Gwei), modify if needed
       confirmations: 2,      // Wait for 2 confirmations
       timeoutBlocks: 10000,    // Timeout for blocks

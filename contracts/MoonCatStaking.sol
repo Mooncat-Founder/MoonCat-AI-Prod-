@@ -48,7 +48,6 @@ contract MoonCatStaking {
     }
 
     // -------------------- 7-Day Staking Functions --------------------
-
     function stake7Days(uint256 _amount) public {
         require(_amount > 0, "Cannot stake 0");
         require(token.balanceOf(msg.sender) >= _amount, "Insufficient staking token balance");
@@ -58,7 +57,6 @@ contract MoonCatStaking {
 
         Stake storage userStake = stakes7Days[msg.sender];
 
-        // Add to existing stake or create a new one
         if (userStake.amount > 0) {
             userStake.amount += _amount;
         } else {
@@ -88,7 +86,6 @@ contract MoonCatStaking {
 
         // Calculate reward
         uint256 reward = (userStake.unlockRequestTime - userStake.since) * rewardRate7Days * userStake.amount / 1e18;
-
         uint256 totalAmount = userStake.amount + reward;
 
         // Transfer staking tokens back to the user
@@ -99,25 +96,11 @@ contract MoonCatStaking {
         emit Unstaked(msg.sender, userStake.amount, reward, "7-Day");
     }
 
-    function withdrawInterest7Days() public {
-        Stake storage userStake = stakes7Days[msg.sender];
-        require(userStake.amount > 0, "No stake found");
-        require(userStake.unlockRequestTime == 0, "Cannot withdraw interest while unlock is requested");
-
-        uint256 reward = (block.timestamp - userStake.since) * rewardRate7Days * userStake.amount / 1e18;
-        require(reward > 0, "No interest to withdraw");
-
-        userStake.since = block.timestamp; // Reset since to current time
-        token.transfer(msg.sender, reward);
-    }
-
     // -------------------- 1-Year Staking Functions --------------------
-
     function stake1Year(uint256 _amount) public {
         require(_amount > 0, "Cannot stake 0");
         require(token.balanceOf(msg.sender) >= _amount, "Insufficient staking token balance");
 
-        // Transfer staking tokens from user to contract
         token.transferFrom(msg.sender, address(this), _amount);
 
         Stake storage userStake = stakes1Year[msg.sender];
@@ -137,7 +120,7 @@ contract MoonCatStaking {
         Stake storage userStake = stakes1Year[msg.sender];
         require(userStake.amount > 0, "No stake found");
 
-        userStake.since = block.timestamp; // Stop interest accumulation
+        userStake.since = block.timestamp;
         userStake.unlockRequestTime = block.timestamp;
 
         emit UnlockRequested(msg.sender, userStake.unlockRequestTime, "1-Year");
@@ -149,12 +132,9 @@ contract MoonCatStaking {
         require(userStake.unlockRequestTime > 0, "Unlock not requested");
         require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR, "Unlock period not reached");
 
-        // Calculate reward
         uint256 reward = (userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR - userStake.since) * rewardRate1Year * userStake.amount / 1e18;
-
         uint256 totalAmount = userStake.amount + reward;
 
-        // Transfer staking tokens back to the user
         token.transfer(msg.sender, totalAmount);
 
         delete stakes1Year[msg.sender];
@@ -162,15 +142,25 @@ contract MoonCatStaking {
         emit Unstaked(msg.sender, userStake.amount, reward, "1-Year");
     }
 
-    function withdrawInterest1Year() public {
-        Stake storage userStake = stakes1Year[msg.sender];
-        require(userStake.amount > 0, "No stake found");
-        require(userStake.unlockRequestTime == 0, "Cannot withdraw interest while unlock is requested");
+    // -------------------- Unified Interest Withdrawal --------------------
+    function withdrawAllInterest() public {
+        uint256 totalReward;
 
-        uint256 reward = (block.timestamp - userStake.since) * rewardRate1Year * userStake.amount / 1e18;
-        require(reward > 0, "No interest to withdraw");
+        // Check for 7-day pool interest
+        if (stakes7Days[msg.sender].amount > 0) {
+            uint256 reward7Days = (block.timestamp - stakes7Days[msg.sender].since) * rewardRate7Days * stakes7Days[msg.sender].amount / 1e18;
+            totalReward += reward7Days;
+            stakes7Days[msg.sender].since = block.timestamp; // Reset staking time for 7-day pool
+        }
 
-        userStake.since = block.timestamp; // Reset since to current time
-        token.transfer(msg.sender, reward);
+        // Check for 1-year pool interest
+        if (stakes1Year[msg.sender].amount > 0) {
+            uint256 reward1Year = (block.timestamp - stakes1Year[msg.sender].since) * rewardRate1Year * stakes1Year[msg.sender].amount / 1e18;
+            totalReward += reward1Year;
+            stakes1Year[msg.sender].since = block.timestamp; // Reset staking time for 1-year pool
+        }
+
+        require(totalReward > 0, "No interest to withdraw");
+        token.transfer(msg.sender, totalReward);
     }
 }

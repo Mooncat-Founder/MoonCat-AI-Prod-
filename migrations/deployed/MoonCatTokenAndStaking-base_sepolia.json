@@ -1,6 +1,6 @@
 {
   "MoonCatToken": {
-    "address": "0xd5911b3BaeBf78ec3196cbD38602a606da182205",
+    "address": "0x8aD0f524edA711A8bB4d8268559ceC7819fcD6C7",
     "abi": [
       {
         "inputs": [
@@ -439,7 +439,7 @@
     ]
   },
   "Staking": {
-    "address": "0x30Bc5AC1C1743bafb6BE4dd317EAcaa2FAA0fA5B",
+    "address": "0x7Ba7bC32E00F66886172fe01095132956aceD019",
     "abi": [
       {
         "inputs": [
@@ -754,14 +754,6 @@
         "signature": "0xcda01fc3"
       },
       {
-        "inputs": [],
-        "name": "withdrawInterest7Days",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function",
-        "signature": "0x3e47e5c2"
-      },
-      {
         "inputs": [
           {
             "internalType": "uint256",
@@ -793,11 +785,11 @@
       },
       {
         "inputs": [],
-        "name": "withdrawInterest1Year",
+        "name": "withdrawAllInterest",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function",
-        "signature": "0x546c1018"
+        "signature": "0xbb9287ad"
       }
     ]
   }
