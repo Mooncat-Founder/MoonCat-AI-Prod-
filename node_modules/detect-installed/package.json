@@ -1,0 +1,110 @@
+{
+  "name": "detect-installed",
+  "version": "2.0.4",
+  "description": "Checks that given package is installed globally or locally.",
+  "repository": "tunnckoCore/detect-installed",
+  "author": "Charlike Mike Reagent <@tunnckoCore> (http://i.am.charlike.online)",
+  "precommit.silent": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "lint": "standard --verbose",
+    "pretest": "npm run lint",
+    "test": "npm run coverage",
+    "posttest": "npm run lint:coverage",
+    "coverage": "nyc node test.js",
+    "lint:coverage": "nyc check-coverage --lines 100 --branches 100 --statements 100 --functions 100",
+    "report-coverage": "nyc report --reporter=text-lcov | coveralls",
+    "prerelease": "npm test",
+    "release": "standard-version --sign --no-verify",
+    "precommit": "git add --all",
+    "commit": "git-cz"
+  },
+  "dependencies": {
+    "get-installed-path": "^2.0.3"
+  },
+  "devDependencies": {
+    "commitizen": "^2.8.6",
+    "coveralls": "^2.11.15",
+    "cz-conventional-changelog": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "mukla": "^0.4.8",
+    "nyc": "^10.0.0",
+    "pkg-dir": "^1.0.0",
+    "pre-commit": "^1.2.1",
+    "rimraf": "^2.5.4",
+    "standard": "^8.6.0",
+    "standard-version": "^4.0.0"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "check",
+    "detect",
+    "directory",
+    "global",
+    "globally",
+    "install",
+    "installed",
+    "local",
+    "locally",
+    "module",
+    "modules",
+    "npm",
+    "package",
+    "packages",
+    "pkg",
+    "util",
+    "utils",
+    "validate"
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "engines": {
+    "node": ">=4",
+    "npm": ">=2"
+  },
+  "verb": {
+    "run": true,
+    "toc": {
+      "render": true,
+      "method": "preWrite",
+      "maxdepth": 3,
+      "footer": ""
+    },
+    "layout": "empty",
+    "tasks": [
+      "readme"
+    ],
+    "related": {
+      "list": [
+        "always-done",
+        "minibase",
+        "try-catch-core",
+        "is-installed",
+        "global-modules",
+        "get-installed-path"
+      ],
+      "highlight": "get-installed-path"
+    },
+    "reflinks": [
+      "always-done",
+      "async-done",
+      "base",
+      "charlike",
+      "commitizen",
+      "dezalgo",
+      "once",
+      "standard-version",
+      "verb",
+      "verb-generate-readme"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "MoonCatToken": {
-    "address": "0x8aD0f524edA711A8bB4d8268559ceC7819fcD6C7",
+    "address": "0xB918De6f76BA1f9599D956e39191e8ef131Dc094",
     "abi": [
       {
         "inputs": [
@@ -439,7 +439,7 @@
     ]
   },
   "Staking": {
-    "address": "0x7Ba7bC32E00F66886172fe01095132956aceD019",
+    "address": "0x8A9721c83Ac8497324cc2170F17a8c10d9090DD5",
     "abi": [
       {
         "inputs": [
