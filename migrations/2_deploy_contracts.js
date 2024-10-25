@@ -4,51 +4,52 @@ const Staking = artifacts.require("MoonCatStaking");
 const fs = require('fs');
 const path = require('path');
 
-module.exports = async function (deployer, network) {
+module.exports = async function (deployer, network, accounts) {
   try {
     console.log(`Starting deployment on network: ${network}`);
+    console.log(`Deployer address: ${accounts[0]}`);
 
     // Load parameters from .env
-    const tokenName = process.env.TOKEN_NAME;
-    const tokenSymbol = process.env.TOKEN_SYMBOL;
-    const initialSupply = process.env.TOKEN_INITIAL_SUPPLY;
+    const tokenName = process.env.TOKEN_NAME || "MoonCat";
+    const tokenSymbol = process.env.TOKEN_SYMBOL || "MCT";
+    const initialSupply = process.env.TOKEN_INITIAL_SUPPLY || "1000000";
 
-    // Deploy MoonCatToken
+    // Step 1: Deploy Token
     await deployer.deploy(MoonCatToken, tokenName, tokenSymbol, initialSupply);
     const tokenInstance = await MoonCatToken.deployed();
-    console.log("MoonCatToken deployed at:", tokenInstance.address);
+    console.log("Token deployed at:", tokenInstance.address);
 
-    // Deploy Staking
+    // Step 2: Deploy Staking
     await deployer.deploy(Staking, tokenInstance.address);
     const stakingInstance = await Staking.deployed();
     console.log("Staking deployed at:", stakingInstance.address);
 
-    // Exclude staking contract from tax
+    // Step 3: Setup Tax Exclusion
     await tokenInstance.excludeFromTax(stakingInstance.address);
     console.log("Staking contract excluded from tax");
 
-    // Set initial staking rates
-    await stakingInstance.setRewardRate7Days(1999); // 19.99% APR
-    await stakingInstance.setRewardRate1Year(3500); // 35% APR
-    console.log("Initial staking rates set");
+    // Step 4: Verify Roles
+    const roles = await stakingInstance.checkRoles(accounts[0]);
+    console.log("Deployer roles:", {
+      isAdmin: roles[0],
+      isGovernor: roles[1],
+      isPauser: roles[2]
+    });
 
-    // Save deployment data
+    // Save deployment info
     const deploymentData = {
       network,
       timestamp: new Date().toISOString(),
-      MoonCatToken: {
-        address: tokenInstance.address,
-        abi: tokenInstance.abi,
-        initialSupply,
-        tokenName,
-        tokenSymbol
-      },
-      Staking: {
-        address: stakingInstance.address,
-        abi: stakingInstance.abi,
-        initialRates: {
-          sevenDays: "19.99%",
-          oneYear: "35%"
+      deployer: accounts[0],
+      contracts: {
+        token: {
+          address: tokenInstance.address,
+          name: tokenName,
+          symbol: tokenSymbol,
+          initialSupply
+        },
+        staking: {
+          address: stakingInstance.address
         }
       }
     };
@@ -58,12 +59,17 @@ module.exports = async function (deployer, network) {
       fs.mkdirSync(directoryPath, { recursive: true });
     }
 
-    const filePath = path.resolve(directoryPath, `MoonCatTokenAndStaking-${network}.json`);
+    const filePath = path.resolve(directoryPath, `deployment-${network}-${Date.now()}.json`);
     fs.writeFileSync(filePath, JSON.stringify(deploymentData, null, 2));
     console.log(`Deployment info saved to ${filePath}`);
 
   } catch (error) {
-    console.error("Deployment failed:", error);
+    console.error("\nDEPLOYMENT FAILED");
+    console.error("Error type:", error.constructor.name);
+    console.error("Error message:", error.message);
+    if (error.receipt) {
+      console.error("Transaction receipt:", JSON.stringify(error.receipt, null, 2));
+    }
     throw error;
   }
 };

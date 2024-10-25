@@ -2,81 +2,131 @@
 pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Nonces.sol";
 
-contract MoonCatToken is ERC20 {
+contract MoonCatToken is ERC20, ERC20Permit, ERC20Votes, Pausable, Ownable {
     uint256 public taxRate = 100;  // 1% tax
     address public taxCollector;
-    address public owner;
-    mapping(address => bool) public excludedFromTax;  // New: for staking contract
+    mapping(address => bool) public excludedFromTax;
+    
+    uint256 public constant MAX_TAX_RATE = 1000; // 10% max tax
+    
+    event TaxRateUpdated(uint256 oldRate, uint256 newRate);
+    event TaxCollectorUpdated(address oldCollector, address newCollector);
+    event AddressExcludedFromTax(address indexed account, bool excluded);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Caller is not the owner");
+    modifier validAddress(address _address) {
+        require(_address != address(0), "Invalid address");
         _;
     }
 
-    constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
-        owner = msg.sender;
-        taxCollector = msg.sender;
-        _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));
+    constructor(
+        string memory name, 
+        string memory symbol, 
+        uint256 initialSupply
+    ) ERC20(name, symbol) ERC20Permit(name) Ownable(msg.sender) {
+        require(initialSupply > 0, "Initial supply must be positive");
+        require(initialSupply <= type(uint256).max / (10 ** decimals()), "Initial supply too large");
+        
+        taxCollector = _msgSender();
+        _mint(_msgSender(), initialSupply * (10 ** decimals()));
     }
 
-    // New function to exclude addresses from tax (for staking contract)
-    function excludeFromTax(address account) external onlyOwner {
+    function excludeFromTax(address account) external onlyOwner validAddress(account) {
         excludedFromTax[account] = true;
+        emit AddressExcludedFromTax(account, true);
     }
 
-    // New function to include addresses in tax
-    function includeInTax(address account) external onlyOwner {
+    function includeInTax(address account) external onlyOwner validAddress(account) {
         excludedFromTax[account] = false;
+        emit AddressExcludedFromTax(account, false);
     }
 
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "New owner cannot be zero address");
-        owner = newOwner;
-    }
+    function transfer(address recipient, uint256 amount) public virtual override whenNotPaused returns (bool) {
+        require(recipient != address(0), "Transfer to zero address");
+        require(amount <= balanceOf(_msgSender()), "Insufficient balance");
 
-    // Updated transfer function with tax exclusion
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
-        if (excludedFromTax[msg.sender] || excludedFromTax[recipient]) {
+        if (excludedFromTax[_msgSender()] || excludedFromTax[recipient]) {
             _transfer(_msgSender(), recipient, amount);
         } else {
             uint256 taxAmount = (amount * taxRate) / 10000;
             uint256 amountAfterTax = amount - taxAmount;
+            
             _transfer(_msgSender(), recipient, amountAfterTax);
             _transfer(_msgSender(), taxCollector, taxAmount);
         }
         return true;
     }
 
-    // Updated transferFrom function with tax exclusion
     function transferFrom(
         address sender,
         address recipient,
         uint256 amount
-    ) public override returns (bool) {
+    ) public virtual override whenNotPaused returns (bool) {
         if (excludedFromTax[sender] || excludedFromTax[recipient]) {
-            _transfer(sender, recipient, amount);
+            return super.transferFrom(sender, recipient, amount);
         } else {
             uint256 taxAmount = (amount * taxRate) / 10000;
             uint256 amountAfterTax = amount - taxAmount;
-            _transfer(sender, recipient, amountAfterTax);
-            _transfer(sender, taxCollector, taxAmount);
+            
+            super.transferFrom(sender, recipient, amountAfterTax);
+            super.transferFrom(sender, taxCollector, taxAmount);
+            return true;
         }
-
-        uint256 currentAllowance = allowance(sender, _msgSender());
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), currentAllowance - amount);
-
-        return true;
     }
 
     function setTaxRate(uint256 newTaxRate) external onlyOwner {
-        require(newTaxRate <= 1000, "Tax rate cannot exceed 10%");
+        require(newTaxRate <= MAX_TAX_RATE, "Tax rate too high");
+        uint256 oldRate = taxRate;
         taxRate = newTaxRate;
+        emit TaxRateUpdated(oldRate, newTaxRate);
     }
 
-    function setTaxCollector(address newCollector) external onlyOwner {
-        require(newCollector != address(0), "Tax collector cannot be zero address");
+    function setTaxCollector(address newCollector) external onlyOwner validAddress(newCollector) {
+        address oldCollector = taxCollector;
         taxCollector = newCollector;
+        emit TaxCollectorUpdated(oldCollector, newCollector);
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    // Required overrides
+    function _update(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override(ERC20, ERC20Votes) {
+        super._update(from, to, amount);
+    }
+
+    // This is how nonces should be overridden in OpenZeppelin 5.1.0
+    function nonces(
+        address owner
+    ) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
+    }
+
+    // Clock functions required by ERC20Votes
+    function clock() public view virtual override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    function CLOCK_MODE() public pure virtual override returns (string memory) {
+        return "mode=timestamp";
+    }
+
+    // Get domain separator
+    function getDomainSeparator() external view returns (bytes32) {
+        return _domainSeparatorV4();
     }
 }

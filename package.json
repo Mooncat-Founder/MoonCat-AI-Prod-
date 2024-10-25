@@ -12,14 +12,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts": "^5.1.0",
     "@truffle/hdwallet-provider": "^2.1.15",
     "alchemy-sdk": "^3.4.1",
+    "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "truffle": "^5.11.5",
-    "web3": "^4.13.0"
+    "truffle-flattener": "^1.6.0",
+    "web3": "^1.10.0"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.15",
     "truffle-plugin-verify": "^0.6.7"
-  }
+  },
+  "keywords": []
 }

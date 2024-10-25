@@ -5,6 +5,7 @@ dotenv.config();
 
 const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 const alchemyApiKey = process.env.ALCHEMY_API_KEY;
+const verifyApiKey = process.env.ETHERSCAN_API_KEY || ''; // Used for Unichain verification
 
 module.exports = {
   networks: {
@@ -18,22 +19,24 @@ module.exports = {
       confirmations: 2,
       timeoutBlocks: 10000,
       networkCheckTimeout: 14400000,
-      skipDryRun: true,
-      gasPrice: undefined, // Let the network decide
-      gas: 6000000,       // Gas limit
-      maxFeePerGas: undefined, // For EIP-1559
-      maxPriorityFeePerGas: undefined // For EIP-1559
-    },
-    development: {
-      host: "127.0.0.1",
-      port: 8545,
-      network_id: "*"
+      skipDryRun: true
     }
   },
+  
   plugins: ['truffle-plugin-verify'],
+  
   api_keys: {
-    etherscan: process.env.ETHERSCAN_API_KEY || ''
+    etherscan: verifyApiKey // Will be used for Unichain verification
   },
+
+  // Important: Add this verification config
+  verify: {
+    proxy: {
+      host: 'https://www.exceptionrecovery.org/api', // Unichain verifier API
+      apiKey: verifyApiKey
+    }
+  },
+  
   compilers: {
     solc: {
       version: "0.8.27",
@@ -42,11 +45,8 @@ module.exports = {
           enabled: true,
           runs: 200
         },
-        evmVersion: "paris" // Specify EVM version for compatibility
+        evmVersion: "paris"
       }
     }
-  },
-  mocha: {
-    timeout: 100000
   }
 };

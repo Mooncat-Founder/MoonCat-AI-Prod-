@@ -85,6 +85,11 @@
     },
     {
       "inputs": [],
+      "name": "GovernorInvalidVoteParams",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "GovernorInvalidVoteType",
       "type": "error"
     },

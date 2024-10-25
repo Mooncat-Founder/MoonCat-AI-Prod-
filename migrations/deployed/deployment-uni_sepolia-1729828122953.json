@@ -1,0 +1,16 @@
+{
+  "network": "uni_sepolia",
+  "timestamp": "2024-10-25T03:48:42.953Z",
+  "deployer": "0xe5dd89E9A619894862adb336Daa27759CA4D03DD",
+  "contracts": {
+    "token": {
+      "address": "0xabe4629afd9A04da0891828F73EfbE37179c8c65",
+      "name": "MoonCatToken",
+      "symbol": "MCT",
+      "initialSupply": "1000000000"
+    },
+    "staking": {
+      "address": "0x07236348fd853560d0b9865d9d936Bc8e9eFB4f8"
+    }
+  }
+}
