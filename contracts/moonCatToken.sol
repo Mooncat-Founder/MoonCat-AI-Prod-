@@ -7,6 +7,7 @@ contract MoonCatToken is ERC20 {
     uint256 public taxRate = 100;  // 1% tax
     address public taxCollector;
     address public owner;
+    mapping(address => bool) public excludedFromTax;  // New: for staking contract
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Caller is not the owner");
@@ -15,37 +16,52 @@ contract MoonCatToken is ERC20 {
 
     constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
         owner = msg.sender;
-        taxCollector = msg.sender;  // Initialize the tax collector
-        _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));  // Mint the initial supply
+        taxCollector = msg.sender;
+        _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));
     }
 
-    // Transfer ownership
+    // New function to exclude addresses from tax (for staking contract)
+    function excludeFromTax(address account) external onlyOwner {
+        excludedFromTax[account] = true;
+    }
+
+    // New function to include addresses in tax
+    function includeInTax(address account) external onlyOwner {
+        excludedFromTax[account] = false;
+    }
+
     function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "New owner cannot be the zero address");
+        require(newOwner != address(0), "New owner cannot be zero address");
         owner = newOwner;
     }
 
-    // Override the transfer function to include tax logic
+    // Updated transfer function with tax exclusion
     function transfer(address recipient, uint256 amount) public override returns (bool) {
-        uint256 taxAmount = (amount * taxRate) / 10000;
-        uint256 amountAfterTax = amount - taxAmount;
-
-        _transfer(_msgSender(), recipient, amountAfterTax);
-        _transfer(_msgSender(), taxCollector, taxAmount);
+        if (excludedFromTax[msg.sender] || excludedFromTax[recipient]) {
+            _transfer(_msgSender(), recipient, amount);
+        } else {
+            uint256 taxAmount = (amount * taxRate) / 10000;
+            uint256 amountAfterTax = amount - taxAmount;
+            _transfer(_msgSender(), recipient, amountAfterTax);
+            _transfer(_msgSender(), taxCollector, taxAmount);
+        }
         return true;
     }
 
-    // Override the transferFrom function to include tax logic
+    // Updated transferFrom function with tax exclusion
     function transferFrom(
         address sender,
         address recipient,
         uint256 amount
     ) public override returns (bool) {
-        uint256 taxAmount = (amount * taxRate) / 10000;
-        uint256 amountAfterTax = amount - taxAmount;
-
-        _transfer(sender, recipient, amountAfterTax);
-        _transfer(sender, taxCollector, taxAmount);
+        if (excludedFromTax[sender] || excludedFromTax[recipient]) {
+            _transfer(sender, recipient, amount);
+        } else {
+            uint256 taxAmount = (amount * taxRate) / 10000;
+            uint256 amountAfterTax = amount - taxAmount;
+            _transfer(sender, recipient, amountAfterTax);
+            _transfer(sender, taxCollector, taxAmount);
+        }
 
         uint256 currentAllowance = allowance(sender, _msgSender());
         require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
@@ -54,13 +70,13 @@ contract MoonCatToken is ERC20 {
         return true;
     }
 
-    // Set tax rate
     function setTaxRate(uint256 newTaxRate) external onlyOwner {
+        require(newTaxRate <= 1000, "Tax rate cannot exceed 10%");
         taxRate = newTaxRate;
     }
 
-    // Set tax collector address
     function setTaxCollector(address newCollector) external onlyOwner {
+        require(newCollector != address(0), "Tax collector cannot be zero address");
         taxCollector = newCollector;
     }
 }

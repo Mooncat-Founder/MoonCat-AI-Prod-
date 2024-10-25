@@ -13,27 +13,43 @@ module.exports = async function (deployer, network) {
     const tokenSymbol = process.env.TOKEN_SYMBOL;
     const initialSupply = process.env.TOKEN_INITIAL_SUPPLY;
 
-    // Deploy the MoonCatToken contract
+    // Deploy MoonCatToken
     await deployer.deploy(MoonCatToken, tokenName, tokenSymbol, initialSupply);
     const tokenInstance = await MoonCatToken.deployed();
     console.log("MoonCatToken deployed at:", tokenInstance.address);
-    console.log(`Token deployment transaction hash: ${tokenInstance.transactionHash}`);
 
-    // Deploy the Staking contract, passing in the token address
+    // Deploy Staking
     await deployer.deploy(Staking, tokenInstance.address);
     const stakingInstance = await Staking.deployed();
     console.log("Staking deployed at:", stakingInstance.address);
-    console.log(`Staking deployment transaction hash: ${stakingInstance.transactionHash}`);
 
-    // Save deployment data to a file for future reference
+    // Exclude staking contract from tax
+    await tokenInstance.excludeFromTax(stakingInstance.address);
+    console.log("Staking contract excluded from tax");
+
+    // Set initial staking rates
+    await stakingInstance.setRewardRate7Days(1999); // 19.99% APR
+    await stakingInstance.setRewardRate1Year(3500); // 35% APR
+    console.log("Initial staking rates set");
+
+    // Save deployment data
     const deploymentData = {
+      network,
+      timestamp: new Date().toISOString(),
       MoonCatToken: {
         address: tokenInstance.address,
-        abi: tokenInstance.abi
+        abi: tokenInstance.abi,
+        initialSupply,
+        tokenName,
+        tokenSymbol
       },
       Staking: {
         address: stakingInstance.address,
-        abi: stakingInstance.abi
+        abi: stakingInstance.abi,
+        initialRates: {
+          sevenDays: "19.99%",
+          oneYear: "35%"
+        }
       }
     };
 
@@ -42,11 +58,12 @@ module.exports = async function (deployer, network) {
       fs.mkdirSync(directoryPath, { recursive: true });
     }
 
-    const filePath = path.resolve(directoryPath, `MoonCatTokenAndStaking-${deployer.network}.json`);
+    const filePath = path.resolve(directoryPath, `MoonCatTokenAndStaking-${network}.json`);
     fs.writeFileSync(filePath, JSON.stringify(deploymentData, null, 2));
+    console.log(`Deployment info saved to ${filePath}`);
 
-    console.log(`Contract deployment info saved to ${filePath}`);
   } catch (error) {
     console.error("Deployment failed:", error);
+    throw error;
   }
 };
