@@ -1,23 +1,30 @@
 const fs = require('fs');
 const path = require('path');
-const MoonCatToken = artifacts.require("MoonCatToken");
-const MoonCatStaking = artifacts.require("MoonCatStaking");
+const hre = require("hardhat");
 
 async function generateDappInfo() {
     try {
         console.log("Generating dApp information...");
 
+        // Get contract addresses
+        const tokenAddress = "TOKEN_CONTRACT_ADDRESS"; // Replace with your deployed token contract address
+        const stakingAddress = "STAKING_CONTRACT_ADDRESS"; // Replace with your deployed staking contract address
+
         // Get contract instances
-        const token = await MoonCatToken.deployed();
-        const staking = await MoonCatStaking.deployed();
+        const token = await hre.ethers.getContractAt("MoonCatToken", tokenAddress);
+        const staking = await hre.ethers.getContractAt("MoonCatStaking", stakingAddress);
+
+        // Get ABIs from artifacts
+        const MoonCatTokenArtifact = await hre.artifacts.readArtifact("MoonCatToken");
+        const MoonCatStakingArtifact = await hre.artifacts.readArtifact("MoonCatStaking");
 
         // Get current rates and info
         const rate7Days = await staking.rewardRate7Days();
         const rate1Year = await staking.rewardRate1Year();
         const debugInfo = await staking.getDebugInfo();
 
-        // Create clean ABIs (only function name, inputs, and outputs)
-        const cleanTokenABI = MoonCatToken.abi.map(item => {
+        // Clean ABIs (only function name, inputs, and outputs)
+        const cleanTokenABI = MoonCatTokenArtifact.abi.map(item => {
             if (item.type === 'function' || item.type === 'event') {
                 return {
                     name: item.name,
@@ -27,10 +34,10 @@ async function generateDappInfo() {
                     stateMutability: item.stateMutability
                 };
             }
-            return item;
-        });
+            return null;
+        }).filter(item => item !== null);
 
-        const cleanStakingABI = MoonCatStaking.abi.map(item => {
+        const cleanStakingABI = MoonCatStakingArtifact.abi.map(item => {
             if (item.type === 'function' || item.type === 'event') {
                 return {
                     name: item.name,
@@ -40,25 +47,24 @@ async function generateDappInfo() {
                     stateMutability: item.stateMutability
                 };
             }
-            return item;
-        });
+            return null;
+        }).filter(item => item !== null);
 
         // Create dApp info object
         const dappInfo = {
             lastUpdated: new Date().toISOString(),
             contracts: {
                 token: {
-                    address: token.address,
+                    address: tokenAddress,
                     abi: cleanTokenABI,
-                    // Add common token functions example
                     examples: {
-                        approve: `await tokenContract.approve("${staking.address}", "1000000000000000000")`,
+                        approve: `await tokenContract.approve("${stakingAddress}", "1000000000000000000")`,
                         transfer: 'await tokenContract.transfer(recipient, "1000000000000000000")',
                         balanceOf: 'await tokenContract.balanceOf(address)',
                     }
                 },
                 staking: {
-                    address: staking.address,
+                    address: stakingAddress,
                     abi: cleanStakingABI,
                     currentRates: {
                         sevenDays: {
@@ -77,7 +83,6 @@ async function generateDappInfo() {
                         UNLOCK_PERIOD_1YEAR: '365 days',
                         FORCE_UNLOCK_PENALTY: '50%'
                     },
-                    // Add common staking functions example
                     examples: {
                         stake7Days: `await stakingContract.stake7Days("1000000000000000000")`,
                         requestUnlock: 'await stakingContract.requestUnlock7Days()',
@@ -89,10 +94,10 @@ async function generateDappInfo() {
             },
             stakingInfo: {
                 currentStatus: {
-                    isPaused: debugInfo[0],
-                    lastRateChange: new Date(debugInfo[5].toNumber() * 1000).toISOString(),
-                    timeUntilNextChange: debugInfo[6].toString() + " seconds",
-                    canChangeRate: debugInfo[7]
+                    isPaused: debugInfo.isPaused,
+                    lastRateChange: new Date(debugInfo.lastRateChange.toNumber() * 1000).toISOString(),
+                    timeUntilNextChange: debugInfo.timeUntilNextChange.toString() + " seconds",
+                    canChangeRate: debugInfo.canChangeRate
                 }
             },
             utils: {
@@ -117,28 +122,14 @@ async function generateDappInfo() {
         // Create readable file for developers
         const readableInfo = {
             token: {
-                address: token.address,
+                address: tokenAddress,
                 functions: cleanTokenABI
-                    .filter(item => item.type === 'function')
-                    .map(func => ({
-                        name: func.name,
-                        inputs: func.inputs,
-                        outputs: func.outputs,
-                        stateMutability: func.stateMutability
-                    }))
             },
             staking: {
-                address: staking.address,
+                address: stakingAddress,
                 currentRates: dappInfo.contracts.staking.currentRates,
                 constants: dappInfo.contracts.staking.constants,
                 functions: cleanStakingABI
-                    .filter(item => item.type === 'function')
-                    .map(func => ({
-                        name: func.name,
-                        inputs: func.inputs,
-                        outputs: func.outputs,
-                        stateMutability: func.stateMutability
-                    }))
             }
         };
 
@@ -150,13 +141,13 @@ async function generateDappInfo() {
 
         // Save full dApp info
         fs.writeFileSync(
-            path.join(outputDir, 'dapp-info.json'), 
+            path.join(outputDir, 'dapp-info.json'),
             JSON.stringify(dappInfo, null, 2)
         );
 
         // Save readable version
         fs.writeFileSync(
-            path.join(outputDir, 'contracts-reference.json'), 
+            path.join(outputDir, 'contracts-reference.json'),
             JSON.stringify(readableInfo, null, 2)
         );
 
@@ -165,8 +156,8 @@ async function generateDappInfo() {
 # MoonCat Contracts Reference
 
 ## Deployment Information
-- Token Address: \`${token.address}\`
-- Staking Address: \`${staking.address}\`
+- Token Address: \`${tokenAddress}\`
+- Staking Address: \`${stakingAddress}\`
 
 ## Current Staking Rates
 - 7-Day Staking: ${dappInfo.contracts.staking.currentRates.sevenDays.apr}
@@ -213,7 +204,7 @@ ${dappInfo.utils.calculateRewards}
 `;
 
         fs.writeFileSync(
-            path.join(outputDir, 'README.md'), 
+            path.join(outputDir, 'README.md'),
             markdownDocs.trim()
         );
 
@@ -230,8 +221,4 @@ Files created in ${outputDir}:
     }
 }
 
-module.exports = function(callback) {
-    generateDappInfo()
-        .then(() => callback())
-        .catch(callback);
-};
+generateDappInfo();

@@ -1,75 +1,35 @@
-require('dotenv').config();
-const MoonCatToken = artifacts.require("MoonCatToken");
-const Staking = artifacts.require("MoonCatStaking");
-const fs = require('fs');
-const path = require('path');
+const hre = require("hardhat");
+const { ethers } = hre;
 
-module.exports = async function (deployer, network, accounts) {
-  try {
-    console.log(`Starting deployment on network: ${network}`);
-    console.log(`Deployer address: ${accounts[0]}`);
+async function main() {
+  // Get the deployer account
+  const [deployer] = await ethers.getSigners();
 
-    // Load parameters from .env
-    const tokenName = process.env.TOKEN_NAME || "MoonCat";
-    const tokenSymbol = process.env.TOKEN_SYMBOL || "MCT";
-    const initialSupply = process.env.TOKEN_INITIAL_SUPPLY || "1000000";
+  console.log("Deploying contracts with the account:", deployer.address);
 
-    // Step 1: Deploy Token
-    await deployer.deploy(MoonCatToken, tokenName, tokenSymbol, initialSupply);
-    const tokenInstance = await MoonCatToken.deployed();
-    console.log("Token deployed at:", tokenInstance.address);
+  // Deploy MoonCatToken
+  const MoonCatToken = await ethers.getContractFactory("MoonCatToken");
+  const moonCatToken = await MoonCatToken.deploy("MoonCat", "MCT", "1000000");
+  await moonCatToken.waitForDeployment(); // Wait for deployment confirmation
+  const moonCatTokenAddress = moonCatToken.target; // Use .target to get the contract address
+  console.log("MoonCatToken deployed to:", moonCatTokenAddress);
 
-    // Step 2: Deploy Staking
-    await deployer.deploy(Staking, tokenInstance.address);
-    const stakingInstance = await Staking.deployed();
-    console.log("Staking deployed at:", stakingInstance.address);
+  // Deploy MoonCatStaking
+  const MoonCatStaking = await ethers.getContractFactory("MoonCatStaking");
+  const moonCatStaking = await MoonCatStaking.deploy(moonCatTokenAddress);
+  await moonCatStaking.waitForDeployment();
+  const moonCatStakingAddress = moonCatStaking.target;
+  console.log("MoonCatStaking deployed to:", moonCatStakingAddress);
 
-    // Step 3: Setup Tax Exclusion
-    await tokenInstance.excludeFromTax(stakingInstance.address);
-    console.log("Staking contract excluded from tax");
+  // Exclude Staking Contract from Tax
+  const tx = await moonCatToken.excludeFromTax(moonCatStakingAddress);
+  await tx.wait();
+  console.log("Staking contract excluded from tax");
+}
 
-    // Step 4: Verify Roles
-    const roles = await stakingInstance.checkRoles(accounts[0]);
-    console.log("Deployer roles:", {
-      isAdmin: roles[0],
-      isGovernor: roles[1],
-      isPauser: roles[2]
-    });
-
-    // Save deployment info
-    const deploymentData = {
-      network,
-      timestamp: new Date().toISOString(),
-      deployer: accounts[0],
-      contracts: {
-        token: {
-          address: tokenInstance.address,
-          name: tokenName,
-          symbol: tokenSymbol,
-          initialSupply
-        },
-        staking: {
-          address: stakingInstance.address
-        }
-      }
-    };
-
-    const directoryPath = path.resolve(__dirname, 'deployed');
-    if (!fs.existsSync(directoryPath)) {
-      fs.mkdirSync(directoryPath, { recursive: true });
-    }
-
-    const filePath = path.resolve(directoryPath, `deployment-${network}-${Date.now()}.json`);
-    fs.writeFileSync(filePath, JSON.stringify(deploymentData, null, 2));
-    console.log(`Deployment info saved to ${filePath}`);
-
-  } catch (error) {
-    console.error("\nDEPLOYMENT FAILED");
-    console.error("Error type:", error.constructor.name);
-    console.error("Error message:", error.message);
-    if (error.receipt) {
-      console.error("Transaction receipt:", JSON.stringify(error.receipt, null, 2));
-    }
-    throw error;
-  }
-};
+main()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error("Deployment failed:", error);
+    process.exit(1);
+  });

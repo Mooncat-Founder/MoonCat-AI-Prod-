@@ -1,69 +1,38 @@
-const Staking = artifacts.require("MoonCatStaking");
+const hre = require("hardhat");
+const { ethers } = hre;
 
-module.exports = async function (deployer, network, accounts) {
-  try {
-    console.log("\nStarting rate setting process...");
-    
-    const stakingInstance = await Staking.deployed();
-    console.log("Staking contract address:", stakingInstance.address);
+async function main() {
+  // Get the deployer account
+  const [deployer] = await ethers.getSigners();
 
-    // Get debug info
-    const debugInfo = await stakingInstance.getDebugInfo();
-    console.log("\nContract Debug Info:", {
-      isPaused: debugInfo[0],
-      hasGovernorRole: debugInfo[1],
-      hasAdminRole: debugInfo[2],
-      currentRate7Days: debugInfo[3].toString(),
-      currentRate1Year: debugInfo[4].toString(),
-      lastChangeTime: new Date(debugInfo[5].toNumber() * 1000).toISOString(),
-      timeUntilNextChange: debugInfo[6].toString() + " seconds",
-      canChangeRate: debugInfo[7]
-    });
+  const stakingAddress = "0x3f7edDf9E1e59Dd254750CCD9A428f05AF5364FB"; // Replace with your staking contract address
 
-    if (!debugInfo[7]) {
-        console.log("\nWaiting for cooldown period...");
-        await new Promise(resolve => setTimeout(resolve, (debugInfo[6].toNumber() + 1) * 1000));
-    }
+  // Get the contract ABI from artifacts
+  const MoonCatStakingArtifact = await hre.artifacts.readArtifact("MoonCatStaking");
 
-    // Set 7-day rate
-    console.log("\nSetting 7-day rate...");
-    console.log("Using address:", accounts[0]);
-    
-    const setRate7DaysTx = await stakingInstance.setRewardRate7Days(1999, {
-        from: accounts[0],
-        gas: 500000,
-        gasPrice: web3.utils.toWei('2.5', 'gwei')
-    });
-    
-    console.log("7-day rate transaction sent:", setRate7DaysTx.tx);
+  // Create the contract instance connected to the deployer
+  const moonCatStaking = new ethers.Contract(
+    stakingAddress,
+    MoonCatStakingArtifact.abi,
+    deployer
+  );
 
-    // Wait between transactions
-    await new Promise(resolve => setTimeout(resolve, 10000));
+  console.log("Setting reward rates...");
 
-    // Set 1-year rate
-    console.log("\nSetting 1-year rate...");
-    const setRate1YearTx = await stakingInstance.setRewardRate1Year(3500, {
-        from: accounts[0],
-        gas: 500000,
-        gasPrice: web3.utils.toWei('2.5', 'gwei')
-    });
-    
-    console.log("1-year rate transaction sent:", setRate1YearTx.tx);
+  // Set 7-day rate
+  let tx = await moonCatStaking.setRewardRate7Days(1999);
+  await tx.wait();
+  console.log("7-day rate set to:", (await moonCatStaking.rewardRate7Days()).toString());
 
-    // Final verification
-    const finalDebugInfo = await stakingInstance.getDebugInfo();
-    console.log("\nFinal rates:", {
-      sevenDays: finalDebugInfo[3].toString(),
-      oneYear: finalDebugInfo[4].toString()
-    });
+  // Set 1-year rate
+  tx = await moonCatStaking.setRewardRate1Year(3500);
+  await tx.wait();
+  console.log("1-year rate set to:", (await moonCatStaking.rewardRate1Year()).toString());
+}
 
-  } catch (error) {
-    console.error("\nRATE SETTING FAILED");
-    console.error("Error type:", error.constructor.name);
-    console.error("Error message:", error.message);
-    if (error.receipt) {
-      console.error("Transaction receipt:", JSON.stringify(error.receipt, null, 2));
-    }
-    throw error;
-  }
-};
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Setting rates failed:", error);
+    process.exit(1);
+  });
