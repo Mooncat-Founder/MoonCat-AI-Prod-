@@ -19,8 +19,17 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         bool isLocked;
     }
 
+    struct StakingStats {
+        uint256 totalStaked;
+        uint256 totalCompounded;
+        uint256 totalWithdrawn;
+        uint256 currentPendingRewards;
+    }
+
     mapping(address => Stake) public stakes7Days;
     mapping(address => Stake) public stakes1Year;
+    mapping(address => StakingStats) public stakingStats7Days;
+    mapping(address => StakingStats) public stakingStats1Year;
     
     uint256 public rewardRate7Days;
     uint256 public rewardRate1Year;
@@ -45,6 +54,7 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     event EmergencyWithdraw(address indexed user, uint256 amount, uint256 fee);
     event RateChanged(string indexed stakeType, uint256 oldRate, uint256 newRate);
     event EmergencyModeEnabled(address indexed by);
+    event StakeCompounded(address indexed user, uint256 originalAmount, uint256 compoundedInterest, uint256 newTotal, string indexed stakeType);
 
     modifier validAddress(address _address) {
         require(_address != address(0), "Invalid address");
@@ -69,7 +79,6 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         lastRateChange = block.timestamp;
     }
 
-    // Staking Functions for 7-Day Staking
     function stake7Days(uint256 _amount) external nonReentrant whenNotPaused {
         require(_amount > 0, "Cannot stake 0");
         require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance");
@@ -77,9 +86,15 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         Stake storage userStake = stakes7Days[msg.sender];
         
         if (userStake.amount > 0 && userStake.isLocked) {
+            uint256 originalAmount = userStake.amount;
             uint256 reward = calculatePendingRewards(userStake, rewardRate7Days);
             userStake.amount += reward;
             userStake.since = block.timestamp;
+            
+            if (reward > 0) {
+                stakingStats7Days[msg.sender].totalCompounded += reward;
+                emit StakeCompounded(msg.sender, originalAmount, reward, userStake.amount, "7-Day");
+            }
         }
 
         require(token.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
@@ -88,6 +103,7 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         userStake.since = block.timestamp;
         userStake.isLocked = true;
         userStake.unlockRequestTime = 0;
+        stakingStats7Days[msg.sender].totalStaked += _amount;
         
         emit Staked(msg.sender, _amount, block.timestamp, "7-Day");
     }
@@ -98,7 +114,10 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         require(userStake.isLocked, "Already unlocking");
 
         uint256 reward = calculatePendingRewards(userStake, rewardRate7Days);
-        userStake.amount += reward;
+        if (reward > 0) {
+            userStake.amount += reward;
+            stakingStats7Days[msg.sender].totalCompounded += reward;
+        }
         userStake.since = block.timestamp;
         userStake.unlockRequestTime = block.timestamp;
         userStake.isLocked = false;
@@ -132,7 +151,6 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit ForceUnlocked(msg.sender, amountAfterPenalty, penalty, "7-Day");
     }
 
-    // Staking Functions for 1-Year Staking
     function stake1Year(uint256 _amount) external nonReentrant whenNotPaused {
         require(_amount > 0, "Cannot stake 0");
         require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance");
@@ -140,9 +158,15 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         Stake storage userStake = stakes1Year[msg.sender];
         
         if (userStake.amount > 0 && userStake.isLocked) {
+            uint256 originalAmount = userStake.amount;
             uint256 reward = calculatePendingRewards(userStake, rewardRate1Year);
             userStake.amount += reward;
             userStake.since = block.timestamp;
+            
+            if (reward > 0) {
+                stakingStats1Year[msg.sender].totalCompounded += reward;
+                emit StakeCompounded(msg.sender, originalAmount, reward, userStake.amount, "1-Year");
+            }
         }
 
         require(token.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
@@ -151,6 +175,7 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         userStake.since = block.timestamp;
         userStake.isLocked = true;
         userStake.unlockRequestTime = 0;
+        stakingStats1Year[msg.sender].totalStaked += _amount;
         
         emit Staked(msg.sender, _amount, block.timestamp, "1-Year");
     }
@@ -161,7 +186,10 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         require(userStake.isLocked, "Already unlocking");
 
         uint256 reward = calculatePendingRewards(userStake, rewardRate1Year);
-        userStake.amount += reward;
+        if (reward > 0) {
+            userStake.amount += reward;
+            stakingStats1Year[msg.sender].totalCompounded += reward;
+        }
         userStake.since = block.timestamp;
         userStake.unlockRequestTime = block.timestamp;
         userStake.isLocked = false;
@@ -195,7 +223,6 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit ForceUnlocked(msg.sender, amountAfterPenalty, penalty, "1-Year");
     }
 
-    // **New Function: Withdraw All Interest**
     function withdrawAllInterest() external nonReentrant whenNotPaused {
         uint256 totalReward = 0;
 
@@ -215,43 +242,37 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit InterestWithdrawn(msg.sender, totalReward, "All");
     }
 
-    // **Internal Function: Withdraw Interest for 7-Day Staking**
     function _withdrawInterest7Days(address user) internal returns (uint256) {
         Stake storage userStake = stakes7Days[user];
-        if (userStake.amount == 0 || !userStake.isLocked) {
+        if (userStake.amount == 0) {
             return 0;
         }
 
         uint256 reward = calculatePendingRewards(userStake, rewardRate7Days);
         if (reward > 0) {
-            userStake.since = block.timestamp; // Reset the stake time
+            userStake.since = block.timestamp;
+            stakingStats7Days[user].totalWithdrawn += reward;
         }
         return reward;
     }
 
-    // **Internal Function: Withdraw Interest for 1-Year Staking**
     function _withdrawInterest1Year(address user) internal returns (uint256) {
         Stake storage userStake = stakes1Year[user];
-        if (userStake.amount == 0 || !userStake.isLocked) {
+        if (userStake.amount == 0) {
             return 0;
         }
 
         uint256 reward = calculatePendingRewards(userStake, rewardRate1Year);
         if (reward > 0) {
-            userStake.since = block.timestamp; // Reset the stake time
+            userStake.since = block.timestamp;
+            stakingStats1Year[user].totalWithdrawn += reward;
         }
         return reward;
     }
 
-    // Rate Management Functions
-    function setRewardRate7Days(uint256 _newRate) 
-        external 
-        onlyRole(GOVERNOR_ROLE) 
-        whenNotPaused 
-    {
+    function setRewardRate7Days(uint256 _newRate) external onlyRole(GOVERNOR_ROLE) whenNotPaused {
         require(_newRate <= MAX_RATE_7DAYS, "Rate too high");
         
-        // Skip cooldown if it's the first rate change or if caller has admin role
         if (lastRateChange != 0 && !hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             require(block.timestamp >= lastRateChange + RATE_CHANGE_COOLDOWN, "Rate change too soon");
         }
@@ -262,14 +283,9 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit RateChanged("7-Day", oldRate, _newRate);
     }
 
-    function setRewardRate1Year(uint256 _newRate) 
-        external 
-        onlyRole(GOVERNOR_ROLE) 
-        whenNotPaused 
-    {
+    function setRewardRate1Year(uint256 _newRate) external onlyRole(GOVERNOR_ROLE) whenNotPaused {
         require(_newRate <= MAX_RATE_1YEAR, "Rate too high");
         
-        // Skip cooldown if it's the first rate change or if caller has admin role
         if (lastRateChange != 0 && !hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             require(block.timestamp >= lastRateChange + RATE_CHANGE_COOLDOWN, "Rate change too soon");
         }
@@ -280,20 +296,17 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit RateChanged("1-Year", oldRate, _newRate);
     }
 
-    // Emergency Functions
     function enableEmergencyMode() external onlyRole(DEFAULT_ADMIN_ROLE) {
         emergencyMode = true;
         _pause();
         emit EmergencyModeEnabled(msg.sender);
     }
-
     function emergencyWithdraw() external nonReentrant {
         require(emergencyMode, "Emergency mode not active");
         
         uint256 totalAmount = 0;
         uint256 totalFee = 0;
 
-        // Withdraw from 7-Day Stake
         Stake storage userStake7Days = stakes7Days[msg.sender];
         if (userStake7Days.amount > 0) {
             uint256 amount = userStake7Days.amount;
@@ -306,7 +319,6 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
             delete stakes7Days[msg.sender];
         }
 
-        // Withdraw from 1-Year Stake
         Stake storage userStake1Year = stakes1Year[msg.sender];
         if (userStake1Year.amount > 0) {
             uint256 amount = userStake1Year.amount;
@@ -375,6 +387,58 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
             block.timestamp >= nextChangeTime ? 0 : nextChangeTime - block.timestamp,
             block.timestamp >= nextChangeTime || hasRole(DEFAULT_ADMIN_ROLE, msg.sender)
         );
+    }
+
+    // New view functions for stake details and stats
+    function getStakeDetails7Days(address user) external view returns (
+        uint256 stakedAmount,
+        uint256 pendingRewards,
+        bool isLocked,
+        uint256 unlockRequestTime,
+        uint256 timeStaked
+    ) {
+        Stake memory stake = stakes7Days[user];
+        return (
+            stake.amount,
+            calculatePendingRewards(stake, rewardRate7Days),
+            stake.isLocked,
+            stake.unlockRequestTime,
+            stake.since
+        );
+    }
+
+    function getStakeDetails1Year(address user) external view returns (
+        uint256 stakedAmount,
+        uint256 pendingRewards,
+        bool isLocked,
+        uint256 unlockRequestTime,
+        uint256 timeStaked
+    ) {
+        Stake memory stake = stakes1Year[user];
+        return (
+            stake.amount,
+            calculatePendingRewards(stake, rewardRate1Year),
+            stake.isLocked,
+            stake.unlockRequestTime,
+            stake.since
+        );
+    }
+
+    function getAllStakingStats(address user) external view returns (
+        StakingStats memory stats7Days,
+        StakingStats memory stats1Year
+    ) {
+        stats7Days = stakingStats7Days[user];
+        stats1Year = stakingStats1Year[user];
+        
+        // Update current pending rewards
+        Stake memory stake7 = stakes7Days[user];
+        Stake memory stake1 = stakes1Year[user];
+        
+        stats7Days.currentPendingRewards = calculatePendingRewards(stake7, rewardRate7Days);
+        stats1Year.currentPendingRewards = calculatePendingRewards(stake1, rewardRate1Year);
+        
+        return (stats7Days, stats1Year);
     }
 
     // Access Control Functions

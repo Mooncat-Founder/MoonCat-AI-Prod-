@@ -38,8 +38,8 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\MoonCatStaking.sol": {
-      "lastModificationDate": 1729906651810,
-      "contentHash": "afe2fbe245fbee7d5a39b06f0e188e5a",
+      "lastModificationDate": 1729982996416,
+      "contentHash": "3c6ed61c856ffd101df94714cae134f6",
       "sourceName": "contracts/MoonCatStaking.sol",
       "solcConfig": {
         "version": "0.8.27",
