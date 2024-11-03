@@ -5,7 +5,7 @@ async function main() {
   // Get the deployer account
   const [deployer] = await ethers.getSigners();
 
-  const stakingAddress = "0x3f7edDf9E1e59Dd254750CCD9A428f05AF5364FB"; // Replace with your staking contract address
+  const stakingAddress = "0xdd0952D318DaD94C2f42C04adFAA83e17182486D"; // Replace with your staking contract address
 
   // Get the contract ABI from artifacts
   const MoonCatStakingArtifact = await hre.artifacts.readArtifact("MoonCatStaking");

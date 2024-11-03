@@ -38,9 +38,11 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     uint256 public constant UNLOCK_PERIOD_1YEAR = 365 days;
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant FORCE_UNLOCK_PENALTY = 5000; // 50% penalty
-    uint256 public constant MAX_RATE_7DAYS = 2000;      // 20% APR max
-    uint256 public constant MAX_RATE_1YEAR = 3500;      // 35% APR max
+    uint256 public constant MAX_RATE_7DAYS = 5000;      // 50% APR max
+    uint256 public constant MAX_RATE_1YEAR = 9900;      // 99% APR max
     uint256 public constant RATE_CHANGE_COOLDOWN = 7 days;
+    uint256 public constant MAX_STAKE_AMOUNT = 1_000_000 ether; // 1 million tokens
+
 
     bool public emergencyMode;
     uint256 public emergencyWithdrawalFee = 1000; // 10% fee during emergency
@@ -81,7 +83,8 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
 
     function stake7Days(uint256 _amount) external nonReentrant whenNotPaused {
         require(_amount > 0, "Cannot stake 0");
-        require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance");
+        require(_amount <= MAX_STAKE_AMOUNT, "Amount exceeds maximum");
+        require(stakes7Days[msg.sender].amount + _amount <= MAX_STAKE_AMOUNT, "Total would exceed maximum");
         
         Stake storage userStake = stakes7Days[msg.sender];
         
@@ -111,16 +114,18 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     function requestUnlock7Days() external whenNotPaused {
         Stake storage userStake = stakes7Days[msg.sender];
         require(userStake.amount > 0, "No stake found");
-        require(userStake.isLocked, "Already unlocking");
+        require(userStake.unlockRequestTime == 0, "Already unlocking");
 
+        // Compound any pending rewards before starting unlock
         uint256 reward = calculatePendingRewards(userStake, rewardRate7Days);
         if (reward > 0) {
             userStake.amount += reward;
             stakingStats7Days[msg.sender].totalCompounded += reward;
         }
+
+        // Update stake timing
         userStake.since = block.timestamp;
         userStake.unlockRequestTime = block.timestamp;
-        userStake.isLocked = false;
 
         emit UnlockRequested(msg.sender, block.timestamp, "7-Day");
     }
@@ -137,6 +142,13 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         require(token.transfer(msg.sender, amount), "Transfer failed");
         emit Unstaked(msg.sender, amount, 0, "7-Day");
     }
+    
+    // Add function to check if unlock period is complete
+    function isUnlockComplete(Stake memory stake, bool is7Days) public view returns (bool) {
+        if (stake.unlockRequestTime == 0) return false;
+        uint256 unlockPeriod = is7Days ? UNLOCK_PERIOD_7DAYS : UNLOCK_PERIOD_1YEAR;
+        return block.timestamp >= stake.unlockRequestTime + unlockPeriod;
+    }
 
     function forceUnlock7Days() external nonReentrant whenNotPaused {
         Stake storage userStake = stakes7Days[msg.sender];
@@ -151,9 +163,10 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit ForceUnlocked(msg.sender, amountAfterPenalty, penalty, "7-Day");
     }
 
-    function stake1Year(uint256 _amount) external nonReentrant whenNotPaused {
+        function stake1Year(uint256 _amount) external nonReentrant whenNotPaused {
         require(_amount > 0, "Cannot stake 0");
-        require(token.balanceOf(msg.sender) >= _amount, "Insufficient balance");
+        require(_amount <= MAX_STAKE_AMOUNT, "Amount exceeds maximum");
+        require(stakes1Year[msg.sender].amount + _amount <= MAX_STAKE_AMOUNT, "Total would exceed maximum");
         
         Stake storage userStake = stakes1Year[msg.sender];
         
@@ -180,19 +193,21 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit Staked(msg.sender, _amount, block.timestamp, "1-Year");
     }
 
-    function requestUnlock1Year() external whenNotPaused {
+     function requestUnlock1Year() external whenNotPaused {
         Stake storage userStake = stakes1Year[msg.sender];
         require(userStake.amount > 0, "No stake found");
-        require(userStake.isLocked, "Already unlocking");
+        require(userStake.unlockRequestTime == 0, "Already unlocking");
 
+        // Compound any pending rewards before starting unlock
         uint256 reward = calculatePendingRewards(userStake, rewardRate1Year);
         if (reward > 0) {
             userStake.amount += reward;
             stakingStats1Year[msg.sender].totalCompounded += reward;
         }
+
+        // Update stake timing
         userStake.since = block.timestamp;
         userStake.unlockRequestTime = block.timestamp;
-        userStake.isLocked = false;
 
         emit UnlockRequested(msg.sender, block.timestamp, "1-Year");
     }
@@ -337,58 +352,39 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     }
 
     // View Functions
-    function calculatePendingRewards(
+        function calculatePendingRewards(
         Stake memory stake,
         uint256 rate
     ) public view returns (uint256) {
-        if (!stake.isLocked || stake.amount == 0) return 0;
+        if (stake.amount == 0 || !stake.isLocked) {
+            return 0;
+        }
         
-        uint256 duration = block.timestamp - stake.since;
-        uint256 timeComponent = (duration * rate) / (365 days);
-        if (timeComponent > BASIS_POINTS) timeComponent = BASIS_POINTS;
+        // Calculate the duration in seconds
+        uint256 stakeDuration;
+        if (stake.unlockRequestTime > 0) {
+            uint256 unlockPeriod = rate == rewardRate7Days ? UNLOCK_PERIOD_7DAYS : UNLOCK_PERIOD_1YEAR;
+            uint256 unlockCompleteTime = stake.unlockRequestTime + unlockPeriod;
+            
+            if (block.timestamp >= unlockCompleteTime) {
+                // If unlock period is complete, calculate interest up to unlock completion
+                stakeDuration = unlockCompleteTime - stake.since;
+            } else {
+                // If still in unlock period, calculate interest up to current time
+                stakeDuration = block.timestamp - stake.since;
+            }
+        } else {
+            // If not unlocking, calculate up to current time
+            stakeDuration = block.timestamp - stake.since;
+        }
         
-        return (stake.amount * timeComponent) / BASIS_POINTS;
+        // Calculate interest: principal * rate * time
+        uint256 yearInSeconds = 365 days;
+        uint256 interest = (stake.amount * rate * stakeDuration) / (BASIS_POINTS * yearInSeconds);
+        
+        return interest;
     }
-
-    function getPendingRewards7Days(address user) external view returns (uint256) {
-        return calculatePendingRewards(stakes7Days[user], rewardRate7Days);
-    }
-
-    function getPendingRewards1Year(address user) external view returns (uint256) {
-        return calculatePendingRewards(stakes1Year[user], rewardRate1Year);
-    }
-
-    function checkRoles(address account) external view returns (bool isAdmin, bool isGovernor, bool isPauser) {
-        return (
-            hasRole(DEFAULT_ADMIN_ROLE, account),
-            hasRole(GOVERNOR_ROLE, account),
-            hasRole(PAUSER_ROLE, account)
-        );
-    }
-
-    function getDebugInfo() external view returns (
-        bool isPaused,
-        bool hasGovernorRole,
-        bool hasAdminRole,
-        uint256 currentRate7Days,
-        uint256 currentRate1Year,
-        uint256 lastChangeTime,
-        uint256 timeUntilNextChange,
-        bool canChangeRate
-    ) {
-        uint256 nextChangeTime = lastRateChange + RATE_CHANGE_COOLDOWN;
-        return (
-            paused(),
-            hasRole(GOVERNOR_ROLE, msg.sender),
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
-            rewardRate7Days,
-            rewardRate1Year,
-            lastRateChange,
-            block.timestamp >= nextChangeTime ? 0 : nextChangeTime - block.timestamp,
-            block.timestamp >= nextChangeTime || hasRole(DEFAULT_ADMIN_ROLE, msg.sender)
-        );
-    }
-
+ 
     // New view functions for stake details and stats
     function getStakeDetails7Days(address user) external view returns (
         uint256 stakedAmount,
@@ -449,4 +445,59 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
+
+  // Add a view function to get time until unlock completion
+    function getTimeUntilUnlock(address user, bool is7Days) external view returns (uint256) {
+        Stake memory stake = is7Days ? stakes7Days[user] : stakes1Year[user];
+        if (stake.unlockRequestTime == 0) return 0;
+        
+        uint256 unlockPeriod = is7Days ? UNLOCK_PERIOD_7DAYS : UNLOCK_PERIOD_1YEAR;
+        uint256 unlockTime = stake.unlockRequestTime + unlockPeriod;
+        
+        if (block.timestamp >= unlockTime) return 0;
+        return unlockTime - block.timestamp;
+    }
+
+    function debugCalculation(
+        address user,
+        bool is7Days
+    ) external view returns (
+        uint256 stakeAmount,
+        uint256 stakeDuration,
+        uint256 rate,
+        uint256 calculatedInterest,
+        bool isLocked,
+        uint256 unlockRequestTime
+    ) {
+        Stake memory stake = is7Days ? stakes7Days[user] : stakes1Year[user];
+        uint256 currentRate = is7Days ? rewardRate7Days : rewardRate1Year;
+        
+        // Fix duration calculation to match calculatePendingRewards
+        uint256 duration;
+        if (stake.unlockRequestTime > 0) {
+            uint256 unlockPeriod = is7Days ? UNLOCK_PERIOD_7DAYS : UNLOCK_PERIOD_1YEAR;
+            uint256 unlockCompleteTime = stake.unlockRequestTime + unlockPeriod;
+            
+            if (block.timestamp >= unlockCompleteTime) {
+                duration = unlockCompleteTime - stake.since;
+            } else {
+                duration = block.timestamp - stake.since;
+            }
+        } else {
+            duration = block.timestamp - stake.since;
+        }
+                
+        uint256 interest = calculatePendingRewards(stake, currentRate);
+        
+        return (
+            stake.amount,
+            duration,
+            currentRate,
+            interest,
+            stake.isLocked,
+            stake.unlockRequestTime
+        );
+    }
+
 }
+

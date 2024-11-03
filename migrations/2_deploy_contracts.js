@@ -9,7 +9,7 @@ async function main() {
 
   // Deploy MoonCatToken
   const MoonCatToken = await ethers.getContractFactory("MoonCatToken");
-  const moonCatToken = await MoonCatToken.deploy("MoonCat", "MCT", "1000000");
+  const moonCatToken = await MoonCatToken.deploy("MoonCat", "MCT", "1000000000");
   await moonCatToken.waitForDeployment(); // Wait for deployment confirmation
   const moonCatTokenAddress = moonCatToken.target; // Use .target to get the contract address
   console.log("MoonCatToken deployed to:", moonCatTokenAddress);
