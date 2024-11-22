@@ -1,9 +1,46 @@
 require("@nomicfoundation/hardhat-ethers");
-require("@nomiclabs/hardhat-etherscan");
-require('dotenv').config();
+require("@nomicfoundation/hardhat-verify");
+require("dotenv").config();
 
 module.exports = {
-  solidity: "0.8.27",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.27",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+          evmVersion: "paris",
+          // Remove metadata hash to match deployed bytecode
+          metadata: {
+            bytecodeHash: "none"
+          },
+          // Add debug settings
+          debug: {
+            revertStrings: "strip"
+          }
+        },
+      },
+      {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+          evmVersion: "paris",
+          metadata: {
+            bytecodeHash: "none"
+          },
+          debug: {
+            revertStrings: "strip"
+          }
+        },
+      }
+    ],
+  },
   networks: {
     unichain: {
       url: `https://unichain-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
@@ -20,10 +57,13 @@ module.exports = {
         network: "unichain",
         chainId: 1301,
         urls: {
-          apiURL: "https://api-sepolia.uniscan.xyz/api", // Ensure this is the correct API URL
-          browserURL: "https://sepolia.uniscan.xyz/",
+          apiURL: "https://api-sepolia.uniscan.xyz/api",
+          browserURL: "https://sepolia.uniscan.xyz",
         },
       },
     ],
+  },
+  sourcify: {
+    enabled: false,
   },
 };

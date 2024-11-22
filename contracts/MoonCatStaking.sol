@@ -42,10 +42,10 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     uint256 public constant MAX_RATE_1YEAR = 9900;      // 99% APR max
     uint256 public constant RATE_CHANGE_COOLDOWN = 7 days;
     uint256 public constant MAX_STAKE_AMOUNT = 1_000_000 ether; // 1 million tokens
+    uint256 public constant YEAR_IN_SECONDS = 365 days; 
 
 
     bool public emergencyMode;
-    uint256 public emergencyWithdrawalFee = 1000; // 10% fee during emergency
     uint256 public lastRateChange;
 
     event Staked(address indexed user, uint256 amount, uint256 since, string indexed stakeType);
@@ -58,10 +58,6 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     event EmergencyModeEnabled(address indexed by);
     event StakeCompounded(address indexed user, uint256 originalAmount, uint256 compoundedInterest, uint256 newTotal, string indexed stakeType);
 
-    modifier validAddress(address _address) {
-        require(_address != address(0), "Invalid address");
-        _;
-    }
 
     modifier rateChangeAllowed() {
         require(block.timestamp >= lastRateChange + RATE_CHANGE_COOLDOWN, "Rate change too soon");
@@ -136,13 +132,21 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         require(userStake.unlockRequestTime > 0, "Unlock not requested");
         require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_7DAYS, "Still locked");
 
-        uint256 amount = userStake.amount;
+        // Calculate final rewards before unstaking
+        uint256 reward = calculatePendingRewards(userStake, rewardRate7Days);
+        uint256 totalAmount = userStake.amount;
+        
+        if (reward > 0) {
+            totalAmount += reward;
+            stakingStats7Days[msg.sender].totalWithdrawn += reward;
+        }
+
         delete stakes7Days[msg.sender];
         
-        require(token.transfer(msg.sender, amount), "Transfer failed");
-        emit Unstaked(msg.sender, amount, 0, "7-Day");
+        require(token.transfer(msg.sender, totalAmount), "Transfer failed");
+        emit Unstaked(msg.sender, userStake.amount, reward, "7-Day");
     }
-    
+
     // Add function to check if unlock period is complete
     function isUnlockComplete(Stake memory stake, bool is7Days) public view returns (bool) {
         if (stake.unlockRequestTime == 0) return false;
@@ -212,18 +216,26 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit UnlockRequested(msg.sender, block.timestamp, "1-Year");
     }
 
-    function unstake1Year() external nonReentrant whenNotPaused {
-        Stake storage userStake = stakes1Year[msg.sender];
-        require(userStake.amount > 0, "No stake found");
-        require(userStake.unlockRequestTime > 0, "Unlock not requested");
-        require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR, "Still locked");
+function unstake1Year() external nonReentrant whenNotPaused {
+    Stake storage userStake = stakes1Year[msg.sender];
+    require(userStake.amount > 0, "No stake found");
+    require(userStake.unlockRequestTime > 0, "Unlock not requested");
+    require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR, "Still locked");
 
-        uint256 amount = userStake.amount;
-        delete stakes1Year[msg.sender];
-        
-        require(token.transfer(msg.sender, amount), "Transfer failed");
-        emit Unstaked(msg.sender, amount, 0, "1-Year");
+    // Calculate final rewards before unstaking
+    uint256 reward = calculatePendingRewards(userStake, rewardRate1Year);
+    uint256 totalAmount = userStake.amount;
+    
+    if (reward > 0) {
+        totalAmount += reward;
+        stakingStats1Year[msg.sender].totalWithdrawn += reward;
     }
+
+    delete stakes1Year[msg.sender];
+    
+    require(token.transfer(msg.sender, totalAmount), "Transfer failed");
+    emit Unstaked(msg.sender, userStake.amount, reward, "1-Year");
+}
 
     function forceUnlock1Year() external nonReentrant whenNotPaused {
         Stake storage userStake = stakes1Year[msg.sender];
@@ -316,43 +328,31 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         _pause();
         emit EmergencyModeEnabled(msg.sender);
     }
+
     function emergencyWithdraw() external nonReentrant {
         require(emergencyMode, "Emergency mode not active");
         
         uint256 totalAmount = 0;
-        uint256 totalFee = 0;
 
         Stake storage userStake7Days = stakes7Days[msg.sender];
         if (userStake7Days.amount > 0) {
-            uint256 amount = userStake7Days.amount;
-            uint256 fee = (amount * emergencyWithdrawalFee) / BASIS_POINTS;
-            uint256 withdrawAmount = amount - fee;
-
-            totalAmount += withdrawAmount;
-            totalFee += fee;
-
+            totalAmount += userStake7Days.amount;
             delete stakes7Days[msg.sender];
         }
 
         Stake storage userStake1Year = stakes1Year[msg.sender];
         if (userStake1Year.amount > 0) {
-            uint256 amount = userStake1Year.amount;
-            uint256 fee = (amount * emergencyWithdrawalFee) / BASIS_POINTS;
-            uint256 withdrawAmount = amount - fee;
-
-            totalAmount += withdrawAmount;
-            totalFee += fee;
-
+            totalAmount += userStake1Year.amount;
             delete stakes1Year[msg.sender];
         }
 
         require(totalAmount > 0, "No stake found");
         require(token.transfer(msg.sender, totalAmount), "Transfer failed");
-        emit EmergencyWithdraw(msg.sender, totalAmount, totalFee);
+        emit EmergencyWithdraw(msg.sender, totalAmount, 0); // Fee is always 0
     }
 
     // View Functions
-        function calculatePendingRewards(
+    function calculatePendingRewards(
         Stake memory stake,
         uint256 rate
     ) public view returns (uint256) {
@@ -379,8 +379,7 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         }
         
         // Calculate interest: principal * rate * time
-        uint256 yearInSeconds = 365 days;
-        uint256 interest = (stake.amount * rate * stakeDuration) / (BASIS_POINTS * yearInSeconds);
+        uint256 interest = (stake.amount * rate * stakeDuration) / (BASIS_POINTS * YEAR_IN_SECONDS);
         
         return interest;
     }

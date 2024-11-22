@@ -8,10 +8,16 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -38,16 +44,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\MoonCatStaking.sol": {
-      "lastModificationDate": 1730497705051,
-      "contentHash": "08f2d9f2df2427c334901cf11ef7961d",
+      "lastModificationDate": 1731621736706,
+      "contentHash": "511dd7a98cc1646876efac32d34a479a",
       "sourceName": "contracts/MoonCatStaking.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -85,10 +97,16 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -122,16 +140,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\ReentrancyGuard.sol": {
-      "lastModificationDate": 1729817864406,
+      "lastModificationDate": 1731120720696,
       "contentHash": "190613e556d509d9e9a0ea43dc5d891d",
       "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -157,55 +181,23 @@
         "ReentrancyGuard"
       ]
     },
-    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Pausable.sol": {
-      "lastModificationDate": 1729817864400,
-      "contentHash": "24e52f6ef3868e6fca664a423140bee9",
-      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Pausable"
-      ]
-    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\access\\AccessControl.sol": {
-      "lastModificationDate": 1729817864119,
+      "lastModificationDate": 1731120716725,
       "contentHash": "4c80b7fdf559a9a348e832a57d072a0b",
       "sourceName": "@openzeppelin/contracts/access/AccessControl.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -235,17 +227,153 @@
         "AccessControl"
       ]
     },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Pausable.sol": {
+      "lastModificationDate": 1731120720641,
+      "contentHash": "24e52f6ef3868e6fca664a423140bee9",
+      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Pausable"
+      ]
+    },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1731120720548,
+      "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Nonces.sol": {
+      "lastModificationDate": 1731120720534,
+      "contentHash": "c32d108058718efb9061b88e83a83f79",
+      "sourceName": "@openzeppelin/contracts/utils/Nonces.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Nonces"
+      ]
+    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
-      "lastModificationDate": 1729817864218,
+      "lastModificationDate": 1731120718312,
       "contentHash": "38910c3dfa5e3778fac8888b1d714084",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -276,91 +404,23 @@
         "ERC20"
       ]
     },
-    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
-      "lastModificationDate": 1729817864390,
-      "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
-      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Ownable"
-      ]
-    },
-    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Nonces.sol": {
-      "lastModificationDate": 1729817864389,
-      "contentHash": "c32d108058718efb9061b88e83a83f79",
-      "sourceName": "@openzeppelin/contracts/utils/Nonces.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Nonces"
-      ]
-    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\ERC20Votes.sol": {
-      "lastModificationDate": 1729817864228,
+      "lastModificationDate": 1731120718477,
       "contentHash": "51c2083b160453420aaa0a046c16d5ca",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -391,16 +451,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\ERC20Permit.sol": {
-      "lastModificationDate": 1729817864227,
+      "lastModificationDate": 1731120718445,
       "contentHash": "b1a8fc63b83ce00408e0c9ed1230b717",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -433,16 +499,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
-      "lastModificationDate": 1729817864154,
+      "lastModificationDate": 1731120717295,
       "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -468,17 +540,65 @@
         "Context"
       ]
     },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1731120719878,
+      "contentHash": "8f19f64d2adadf448840908bbaf431c8",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\interfaces\\draft-IERC6093.sol": {
-      "lastModificationDate": 1729817864165,
+      "lastModificationDate": 1731120717501,
       "contentHash": "267d92fe4de67b1bdb3302c08f387dbf",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -506,53 +626,23 @@
         "IERC721Errors"
       ]
     },
-    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
-      "lastModificationDate": 1729817864326,
-      "contentHash": "8f19f64d2adadf448840908bbaf431c8",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC20"
-      ]
-    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
-      "lastModificationDate": 1729817864329,
+      "lastModificationDate": 1731120719913,
       "contentHash": "794db3115001aa372c79326fcfd44b1f",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -581,16 +671,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\governance\\utils\\Votes.sol": {
-      "lastModificationDate": 1729817864445,
+      "lastModificationDate": 1731120721043,
       "contentHash": "6a3d78b5b364e501bbe011aaaaf19579",
       "sourceName": "@openzeppelin/contracts/governance/utils/Votes.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -626,16 +722,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\structs\\Checkpoints.sol": {
-      "lastModificationDate": 1729817864147,
+      "lastModificationDate": 1731120717162,
       "contentHash": "657c6dfea3bae1af948de6113ba01cea",
       "sourceName": "@openzeppelin/contracts/utils/structs/Checkpoints.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -664,16 +766,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\interfaces\\IERC5805.sol": {
-      "lastModificationDate": 1729817864348,
+      "lastModificationDate": 1731120720127,
       "contentHash": "65ba9f89b1057e2192e341b286d4e261",
       "sourceName": "@openzeppelin/contracts/interfaces/IERC5805.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -703,16 +811,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\cryptography\\EIP712.sol": {
-      "lastModificationDate": 1729817864172,
+      "lastModificationDate": 1731120717634,
       "contentHash": "8dbb261c55f358342798c4d1803d4f8e",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/EIP712.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -742,53 +856,23 @@
         "EIP712"
       ]
     },
-    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\math\\SafeCast.sol": {
-      "lastModificationDate": 1729817864412,
-      "contentHash": "2adca1150f58fc6f3d1f0a0f22ee7cca",
-      "sourceName": "@openzeppelin/contracts/utils/math/SafeCast.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "SafeCast"
-      ]
-    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\cryptography\\ECDSA.sol": {
-      "lastModificationDate": 1729817864170,
+      "lastModificationDate": 1731120717610,
       "contentHash": "81de029d56aa803972be03c5d277cb6c",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/ECDSA.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -814,17 +898,65 @@
         "ECDSA"
       ]
     },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\math\\SafeCast.sol": {
+      "lastModificationDate": 1731120720755,
+      "contentHash": "2adca1150f58fc6f3d1f0a0f22ee7cca",
+      "sourceName": "@openzeppelin/contracts/utils/math/SafeCast.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "SafeCast"
+      ]
+    },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\types\\Time.sol": {
-      "lastModificationDate": 1729817864427,
+      "lastModificationDate": 1731120720908,
       "contentHash": "d83e7814a059fc1287fd765f424ce004",
       "sourceName": "@openzeppelin/contracts/utils/types/Time.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -854,16 +986,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\governance\\utils\\IVotes.sol": {
-      "lastModificationDate": 1729817864375,
+      "lastModificationDate": 1731120720413,
       "contentHash": "905ffceb29869fee4b5a649abe7e2927",
       "sourceName": "@openzeppelin/contracts/governance/utils/IVotes.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -890,16 +1028,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\interfaces\\IERC6372.sol": {
-      "lastModificationDate": 1729817864350,
+      "lastModificationDate": 1731120720140,
       "contentHash": "414cd6acf090e4009cf016ff62ecbd88",
       "sourceName": "@openzeppelin/contracts/interfaces/IERC6372.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -926,16 +1070,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\ShortStrings.sol": {
-      "lastModificationDate": 1729817864416,
+      "lastModificationDate": 1731120720789,
       "contentHash": "94e7feaf138d08fb736e43ca0be9bf26",
       "sourceName": "@openzeppelin/contracts/utils/ShortStrings.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -964,16 +1114,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\interfaces\\IERC5267.sol": {
-      "lastModificationDate": 1729817864345,
+      "lastModificationDate": 1731120720097,
       "contentHash": "94364524cb1a39dcbc3d3afff6d8e53e",
       "sourceName": "@openzeppelin/contracts/interfaces/IERC5267.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1000,16 +1156,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\cryptography\\MessageHashUtils.sol": {
-      "lastModificationDate": 1729817864385,
+      "lastModificationDate": 1731120720494,
       "contentHash": "86fd93657e4e27ff76c38699e9b9fcef",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1038,16 +1200,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\StorageSlot.sol": {
-      "lastModificationDate": 1729817864423,
+      "lastModificationDate": 1731120720868,
       "contentHash": "e656d64c4ce918f3d13030b91c935134",
       "sourceName": "@openzeppelin/contracts/utils/StorageSlot.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1074,16 +1242,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Strings.sol": {
-      "lastModificationDate": 1729817864425,
+      "lastModificationDate": 1731120720885,
       "contentHash": "f4cc092958a3ddec1f4ed4103bfc54dd",
       "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1113,16 +1287,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\math\\Math.sol": {
-      "lastModificationDate": 1729817864378,
+      "lastModificationDate": 1731120720440,
       "contentHash": "2b2665ae9bdb1af440658741a77fe213",
       "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1152,16 +1332,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\math\\SignedMath.sol": {
-      "lastModificationDate": 1729817864419,
+      "lastModificationDate": 1731120720830,
       "contentHash": "ae3528afb8bdb0a7dcfba5b115ee8074",
       "sourceName": "@openzeppelin/contracts/utils/math/SignedMath.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1190,16 +1376,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\Panic.sol": {
-      "lastModificationDate": 1729817864398,
+      "lastModificationDate": 1731120720627,
       "contentHash": "2133dc13536b4a6a98131e431fac59e1",
       "sourceName": "@openzeppelin/contracts/utils/Panic.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1226,16 +1418,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Permit.sol": {
-      "lastModificationDate": 1729817864330,
+      "lastModificationDate": 1731120719938,
       "contentHash": "94ec15baf0d5df863f45b8f351937ec7",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1262,16 +1460,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\ERC165.sol": {
-      "lastModificationDate": 1729817864211,
+      "lastModificationDate": 1731120718196,
       "contentHash": "7c03c1e37c3dc24eafb76dc2b8a5c3a6",
       "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1300,16 +1504,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\access\\IAccessControl.sol": {
-      "lastModificationDate": 1729817864284,
+      "lastModificationDate": 1731120719389,
       "contentHash": "6f7fac9fa0df6004375e18b7ff7edf4e",
       "sourceName": "@openzeppelin/contracts/access/IAccessControl.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1336,16 +1546,22 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\IERC165.sol": {
-      "lastModificationDate": 1729817864318,
+      "lastModificationDate": 1731120719791,
       "contentHash": "bf0119eb2a570f219729ff38b6cd1df8",
       "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "evmVersion": "paris",
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
           },
           "outputSelection": {
             "*": {
@@ -1369,6 +1585,52 @@
       ],
       "artifacts": [
         "IERC165"
+      ]
+    },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\TokenSaleWithOracle.sol": {
+      "lastModificationDate": 1731187484279,
+      "contentHash": "2973b567fba8e410c9a043c0fd10bd5c",
+      "sourceName": "contracts/TokenSaleWithOracle.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "debug": {
+            "revertStrings": "strip"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "TokenSaleWithOracle"
       ]
     }
   }
