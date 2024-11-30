@@ -1,25 +1,40 @@
 const hre = require("hardhat");
-const { ethers } = hre;
+
+async function deployAndVerify(contractName, args) {
+  // Deploy
+  const factory = await hre.ethers.getContractFactory(contractName);
+  const contract = await factory.deploy(...args);
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  console.log(`${contractName} deployed to:`, address);
+
+  // Wait for a few confirmations and verify immediately
+  await contract.deploymentTransaction().wait(5);
+  
+  try {
+    await hre.run("verify:verify", {
+      address: address,
+      constructorArguments: args,
+    });
+    console.log(`${contractName} verified successfully`);
+  } catch (e) {
+    console.log(`${contractName} verification failed:`, e);
+  }
+
+  return contract;
+}
 
 async function main() {
-  // Get the deployer account
-  const [deployer] = await ethers.getSigners();
-
+  const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying contracts with the account:", deployer.address);
 
-  // Deploy MoonCatToken
-  const MoonCatToken = await ethers.getContractFactory("MoonCatToken");
-  const moonCatToken = await MoonCatToken.deploy("MoonCat", "MCT", "1000000000");
-  await moonCatToken.waitForDeployment(); // Wait for deployment confirmation
-  const moonCatTokenAddress = moonCatToken.target; // Use .target to get the contract address
-  console.log("MoonCatToken deployed to:", moonCatTokenAddress);
+  // Deploy and verify MoonCatToken
+  const moonCatToken = await deployAndVerify("MoonCatToken", ["MoonCat", "MCT", "1000000000"]);
+  const moonCatTokenAddress = await moonCatToken.getAddress();
 
-  // Deploy MoonCatStaking
-  const MoonCatStaking = await ethers.getContractFactory("MoonCatStaking");
-  const moonCatStaking = await MoonCatStaking.deploy(moonCatTokenAddress);
-  await moonCatStaking.waitForDeployment();
-  const moonCatStakingAddress = moonCatStaking.target;
-  console.log("MoonCatStaking deployed to:", moonCatStakingAddress);
+  // Deploy and verify MoonCatStaking
+  const moonCatStaking = await deployAndVerify("MoonCatStaking", [moonCatTokenAddress]);
+  const moonCatStakingAddress = await moonCatStaking.getAddress();
 
   // Exclude Staking Contract from Tax
   const tx = await moonCatToken.excludeFromTax(moonCatStakingAddress);

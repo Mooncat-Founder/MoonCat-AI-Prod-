@@ -8,16 +8,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -44,22 +38,16 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\MoonCatStaking.sol": {
-      "lastModificationDate": 1731621736706,
-      "contentHash": "511dd7a98cc1646876efac32d34a479a",
+      "lastModificationDate": 1732922760008,
+      "contentHash": "c372445134b964fc7962faf7c3cf8039",
       "sourceName": "contracts/MoonCatStaking.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -91,22 +79,16 @@
       ]
     },
     "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\MoonCatToken.sol": {
-      "lastModificationDate": 1729822754553,
-      "contentHash": "457aea20c3cff550d28e927d836f5cd8",
+      "lastModificationDate": 1732240284141,
+      "contentHash": "08704d8689979b8bafe1b2620cce4c44",
       "sourceName": "contracts/MoonCatToken.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -146,16 +128,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -188,16 +164,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -234,16 +204,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -278,16 +242,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -322,16 +280,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -364,16 +316,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -411,16 +357,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -457,16 +397,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -505,16 +439,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -547,16 +475,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -589,16 +511,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -633,16 +549,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -677,16 +587,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -728,16 +632,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -772,16 +670,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -817,16 +709,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -863,16 +749,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -905,16 +785,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -947,16 +821,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -992,16 +860,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1034,16 +896,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1076,16 +932,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1120,16 +970,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1162,16 +1006,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1206,16 +1044,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1248,16 +1080,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1293,16 +1119,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1338,16 +1158,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1382,16 +1196,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1424,16 +1232,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1466,16 +1268,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1510,16 +1306,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1552,16 +1342,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {
@@ -1594,16 +1378,10 @@
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
           "evmVersion": "paris",
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "debug": {
-            "revertStrings": "strip"
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
           },
           "outputSelection": {
             "*": {

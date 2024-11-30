@@ -30,7 +30,8 @@ contract MoonCatToken is ERC20, ERC20Permit, ERC20Votes, Pausable, Ownable {
         uint256 initialSupply
     ) ERC20(name, symbol) ERC20Permit(name) Ownable(msg.sender) {
         require(initialSupply > 0, "Initial supply must be positive");
-        require(initialSupply <= type(uint256).max / (10 ** decimals()), "Initial supply too large");
+        // Updated this line to use uint208 instead of uint256
+        require(initialSupply <= type(uint208).max / (10 ** decimals()), "Initial supply too large");
         
         taxCollector = _msgSender();
         _mint(_msgSender(), initialSupply * (10 ** decimals()));

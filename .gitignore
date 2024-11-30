@@ -2,3 +2,13 @@
 .env
 keypair
 keypair.pub
+multisig_keys.json
+**/multisig_keys.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE files
+.vscode/
+.idea/

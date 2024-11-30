@@ -1,69 +1,29 @@
 require("@nomicfoundation/hardhat-ethers");
 require("@nomicfoundation/hardhat-verify");
-require("dotenv").config();
+require('dotenv').config();
 
 module.exports = {
-  solidity: {
-    compilers: [
-      {
-        version: "0.8.27",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-          evmVersion: "paris",
-          // Remove metadata hash to match deployed bytecode
-          metadata: {
-            bytecodeHash: "none"
-          },
-          // Add debug settings
-          debug: {
-            revertStrings: "strip"
-          }
-        },
-      },
-      {
-        version: "0.8.20",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-          evmVersion: "paris",
-          metadata: {
-            bytecodeHash: "none"
-          },
-          debug: {
-            revertStrings: "strip"
-          }
-        },
-      }
-    ],
-  },
+  solidity: "0.8.27",  // keeping your version
   networks: {
-    unichain: {
-      url: `https://unichain-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+    'unichain-sepolia-testnet': {  // changed network name
+      url: 'https://sepolia.unichain.org',  // using their recommended URL
       chainId: 1301,
       accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
     },
   },
   etherscan: {
     apiKey: {
-      unichain: process.env.ETHERSCAN_API_KEY,
+      'unichain-sepolia-testnet': 'empty'  // using their recommended naming
     },
     customChains: [
       {
-        network: "unichain",
+        network: "unichain-sepolia-testnet",  // matched to their network name
         chainId: 1301,
         urls: {
-          apiURL: "https://api-sepolia.uniscan.xyz/api",
-          browserURL: "https://sepolia.uniscan.xyz",
-        },
-      },
-    ],
-  },
-  sourcify: {
-    enabled: false,
-  },
+          apiURL: "https://unichain-sepolia.blockscout.com/api",  // using their API URL
+          browserURL: "https://unichain-sepolia.blockscout.com"    // using their browser URL
+        }
+      }
+    ]
+  }
 };
