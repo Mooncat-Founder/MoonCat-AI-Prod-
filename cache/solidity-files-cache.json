@@ -1371,10 +1371,121 @@
         "IERC165"
       ]
     },
-    "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\TokenSaleWithOracle.sol": {
-      "lastModificationDate": 1731187484279,
-      "contentHash": "2973b567fba8e410c9a043c0fd10bd5c",
-      "sourceName": "contracts/TokenSaleWithOracle.sol",
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@pythnetwork\\pyth-sdk-solidity\\IPyth.sol": {
+      "lastModificationDate": 1733030156855,
+      "contentHash": "2ab91f416ef2da6ab98d78b1a6bbf56a",
+      "sourceName": "@pythnetwork/pyth-sdk-solidity/IPyth.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./PythStructs.sol",
+        "./IPythEvents.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IPyth"
+      ]
+    },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@pythnetwork\\pyth-sdk-solidity\\PythStructs.sol": {
+      "lastModificationDate": 1733030156864,
+      "contentHash": "5783fadd5a6b693021a6dafe473e1855",
+      "sourceName": "@pythnetwork/pyth-sdk-solidity/PythStructs.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "PythStructs"
+      ]
+    },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\node_modules\\@pythnetwork\\pyth-sdk-solidity\\IPythEvents.sol": {
+      "lastModificationDate": 1733030156857,
+      "contentHash": "1a22bc6d9cba751a28272a37801091ee",
+      "sourceName": "@pythnetwork/pyth-sdk-solidity/IPythEvents.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IPythEvents"
+      ]
+    },
+    "C:\\MooncatAI\\Github\\mooncat_ai\\contracts\\TokenSaleWithPyth.sol": {
+      "lastModificationDate": 1733788716188,
+      "contentHash": "73382408775cf49ecc2a865dd73e5880",
+      "sourceName": "contracts/TokenSaleWithPyth.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
@@ -1402,13 +1513,15 @@
       "imports": [
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
-        "@openzeppelin/contracts/access/Ownable.sol"
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@pythnetwork/pyth-sdk-solidity/IPyth.sol",
+        "@pythnetwork/pyth-sdk-solidity/PythStructs.sol"
       ],
       "versionPragmas": [
-        "^0.8.20"
+        "^0.8.27"
       ],
       "artifacts": [
-        "TokenSaleWithOracle"
+        "TokenSaleWithPyth"
       ]
     }
   }
