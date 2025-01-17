@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -8,6 +9,7 @@ import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 
 contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
+    using SafeERC20 for IERC20;
     IERC20 public mctToken;
     IERC20 public usdtToken;
     IPyth public pyth;
@@ -28,6 +30,7 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     uint256 public constant TOKEN_PRICE_USD = 5000000; // $0.005 with 6 decimals
     uint256 public constant MIN_PURCHASE_USD = 100000000; // $100 with 6 decimals
     uint256 public constant MAX_PURCHASE_USD = 50000000000; // $50,000 with 6 decimals
+    uint256 public constant PRICE_FRESHNESS_THRESHOLD = 120; // 120 seconds staleness threshold
     
     event FundsWithdrawn(address indexed token, uint256 amount);
     event EthWithdrawn(uint256 amount);
@@ -38,6 +41,8 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     event EmergencyWithdraw(address indexed user, uint256 ethAmount, uint256 usdtAmount);
     event SaleFinalized();
     event TokensWithdrawn(address indexed user, uint256 amount);
+    event ContractPaused(address indexed owner);
+    event ContractUnpaused(address indexed owner);
     
      constructor(
         address _mctToken,
@@ -57,14 +62,25 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     }
     
     function getEthPrice() public view returns (uint256) {
-        PythStructs.Price memory price = pyth.getPriceUnsafe(ETH_USD_PRICE_ID);
-        // Convert price to positive value if negative
-        int64 priceValue = price.price < 0 ? -price.price : price.price;
+        // Use getPriceNoOlderThan instead of getPriceUnsafe
+        PythStructs.Price memory price = pyth.getPriceNoOlderThan(
+            ETH_USD_PRICE_ID,
+            PRICE_FRESHNESS_THRESHOLD
+        );
+        
+        // Revert on negative prices
+        require(price.price > 0, "Invalid price feed: negative or zero value");
+        
+        // Convert confidence to same type for comparison (positive values only)
+        require(uint64(price.conf) <= uint64(price.price) / 100, "Price confidence interval too large");
+        
+        // Check for price staleness using expo
+        require(price.expo == -8, "Unexpected price feed decimals");
+        
         // Convert to uint256 and adjust decimals from Pyth's to USDT's 6 decimals
-        // Pyth uses 8 decimals for price feeds
-        return uint256(uint64(priceValue)) / 100;
+        return uint256(uint64(price.price)) / 100;
     }
-    
+        
     function setTreasuryWallet(address _newWallet) external onlyOwner {
         require(_newWallet != address(0), "Invalid address");
         treasuryWallet = _newWallet;
@@ -108,8 +124,8 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         uint256 tokenAmount = calculateTokensForUsd(amount);
         require(tokenAmount <= remainingTokens, "Not enough tokens remaining");
         
-        require(usdtToken.transferFrom(msg.sender, address(this), amount), 
-                "USDT transfer failed");
+        // Replace transferFrom with safeTransferFrom
+        usdtToken.safeTransferFrom(msg.sender, address(this), amount);
                 
         remainingTokens -= tokenAmount;
         totalUsdtRaised += amount;
@@ -136,8 +152,8 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         
         pendingTokens[msg.sender] = 0;
         
-        // Transfer tokens
-        require(mctToken.transfer(msg.sender, amount), "Token transfer failed");
+        // Replace transfer with safeTransfer
+        mctToken.safeTransfer(msg.sender, amount);
         emit TokensWithdrawn(msg.sender, amount);
     }
 
@@ -155,22 +171,21 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         uint256 balance = usdtToken.balanceOf(address(this));
         require(balance > 0, "No USDT to withdraw");
         
-        require(usdtToken.transfer(treasuryWallet, balance), 
-                "USDT transfer failed");
-                
+        // Replace transfer with safeTransfer
+        usdtToken.safeTransfer(treasuryWallet, balance);
         emit FundsWithdrawn(address(usdtToken), balance);
     }
     
     function withdrawToken(address token) external onlyOwner {
         require(token != address(mctToken), "Cannot withdraw sale tokens");
+        require(!emergencyMode, "Emergency mode active: use emergencyWithdraw");
         
         IERC20 tokenContract = IERC20(token);
         uint256 balance = tokenContract.balanceOf(address(this));
         require(balance > 0, "No tokens to withdraw");
         
-        require(tokenContract.transfer(treasuryWallet, balance), 
-                "Token transfer failed");
-                
+        // Replace transfer with safeTransfer
+        tokenContract.safeTransfer(treasuryWallet, balance);
         emit FundsWithdrawn(token, balance);
     }
     
@@ -201,15 +216,16 @@ function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) 
 
     function pause() external onlyOwner {
         paused = true;
+        emit ContractPaused(msg.sender);
     }
 
     function unpause() external onlyOwner {
         paused = false;
+        emit ContractUnpaused(msg.sender);
     }
 
     function enableEmergencyMode() external onlyOwner {
         emergencyMode = true;
-        saleFinalized = true; // Prevent new purchases
         emit EmergencyModeEnabled();
     }
 
@@ -221,24 +237,21 @@ function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) 
     function emergencyWithdraw() external nonReentrant {
         require(emergencyMode, "Emergency mode not active");
         
-        // Refund ETH
         uint256 ethAmount = ethContributions[msg.sender];
+        uint256 usdtAmount = usdtContributions[msg.sender];
+        
+        ethContributions[msg.sender] = 0;
+        usdtContributions[msg.sender] = 0;
+        pendingTokens[msg.sender] = 0;
+        
         if (ethAmount > 0) {
-            ethContributions[msg.sender] = 0;
             (bool sent, ) = msg.sender.call{value: ethAmount}("");
             require(sent, "Failed to send ETH");
         }
         
-        // Refund USDT
-        uint256 usdtAmount = usdtContributions[msg.sender];
         if (usdtAmount > 0) {
-            usdtContributions[msg.sender] = 0;
-            require(usdtToken.transfer(msg.sender, usdtAmount), 
-                    "USDT transfer failed");
+            usdtToken.safeTransfer(msg.sender, usdtAmount);
         }
-        
-        // Clear pending tokens
-        pendingTokens[msg.sender] = 0;
         
         emit EmergencyWithdraw(msg.sender, ethAmount, usdtAmount);
     }
