@@ -43,6 +43,8 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     uint256 public constant FORCE_UNLOCK_PENALTY = 5000; // 50% penalty
     uint256 public constant MAX_RATE_7DAYS = 5000;      // 50% APR max
     uint256 public constant MAX_RATE_1YEAR = 9900;      // 99% APR max
+    uint256 public constant MIN_RATE_7DAYS = 100;  // 1% APR minimum
+    uint256 public constant MIN_RATE_1YEAR = 200;  // 2% APR minimum
     uint256 public constant RATE_CHANGE_COOLDOWN = 7 days;
     uint256 public constant MAX_STAKE_AMOUNT = 1_000_000 ether; // 1 million tokens
     uint256 public constant YEAR_IN_SECONDS = 365 days; 
@@ -61,7 +63,12 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
     event EmergencyModeEnabled(address indexed by);
     event EmergencyModeDisabled(address indexed by);
     event StakeCompounded(address indexed user, uint256 originalAmount, uint256 compoundedInterest, uint256 newTotal, string indexed stakeType);
-
+    event RateUpdateOptIn(
+        address indexed user,
+        string indexed stakeType,
+        uint256 oldRate,
+        uint256 newRate
+    );
 
     modifier rateChangeAllowed() {
         require(block.timestamp >= lastRateChange + RATE_CHANGE_COOLDOWN, "Rate change too soon");
@@ -255,26 +262,28 @@ contract MoonCatStaking is ReentrancyGuard, AccessControl, Pausable {
         emit UnlockRequested(msg.sender, block.timestamp, "1-Year");
     }
 
-function unstake1Year() external nonReentrant whenNotPaused {
-    Stake storage userStake = stakes1Year[msg.sender];
-    require(userStake.amount > 0, "No stake found");
-    require(userStake.unlockRequestTime > 0, "Unlock not requested");
-    require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR, "Still locked");
+    function unstake1Year() external nonReentrant whenNotPaused {
+        Stake storage userStake = stakes1Year[msg.sender];
+        require(userStake.amount > 0, "No stake found");
+        require(userStake.unlockRequestTime > 0, "Unlock not requested");
+        require(block.timestamp >= userStake.unlockRequestTime + UNLOCK_PERIOD_1YEAR, "Still locked");
 
-    // Calculate final rewards before unstaking
-    uint256 reward = calculatePendingRewards(userStake);
-    uint256 totalAmount = userStake.amount;
-    
-    if (reward > 0) {
-        totalAmount += reward;
-        stakingStats1Year[msg.sender].totalWithdrawn += reward;
+        // Store original amount before deletion
+        uint256 originalStakeAmount = userStake.amount;
+        
+        // Calculate final rewards before unstaking
+        uint256 reward = calculatePendingRewards(userStake);
+        uint256 totalAmount = originalStakeAmount + reward;
+        
+        if (reward > 0) {
+            stakingStats1Year[msg.sender].totalWithdrawn += reward;
+        }
+
+        delete stakes1Year[msg.sender];
+        
+        require(token.transfer(msg.sender, totalAmount), "Transfer failed");
+        emit Unstaked(msg.sender, originalStakeAmount, reward, "1-Year");
     }
-
-    delete stakes1Year[msg.sender];
-    
-    require(token.transfer(msg.sender, totalAmount), "Transfer failed");
-    emit Unstaked(msg.sender, userStake.amount, reward, "1-Year");
-}
 
     function forceUnlock1Year() external nonReentrant whenNotPaused {
         Stake storage userStake = stakes1Year[msg.sender];
@@ -357,6 +366,7 @@ function unstake1Year() external nonReentrant whenNotPaused {
 
     function setRewardRate7Days(uint256 _newRate) external onlyRole(GOVERNOR_ROLE) whenNotPaused {
         require(_newRate <= MAX_RATE_7DAYS, "Rate too high");
+        require(_newRate >= MIN_RATE_7DAYS, "Rate too low");  // Added line
         
         if (lastRateChange != 0 && !hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             require(block.timestamp >= lastRateChange + RATE_CHANGE_COOLDOWN, "Rate change too soon");
@@ -370,6 +380,7 @@ function unstake1Year() external nonReentrant whenNotPaused {
 
     function setRewardRate1Year(uint256 _newRate) external onlyRole(GOVERNOR_ROLE) whenNotPaused {
         require(_newRate <= MAX_RATE_1YEAR, "Rate too high");
+        require(_newRate >= MIN_RATE_1YEAR, "Rate too low");  // Added line
         
         if (lastRateChange != 0 && !hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             require(block.timestamp >= lastRateChange + RATE_CHANGE_COOLDOWN, "Rate change too soon");
@@ -565,6 +576,66 @@ function unstake1Year() external nonReentrant whenNotPaused {
             stake.isLocked,
             stake.unlockRequestTime
         );
+    }
+
+    function optInToNewRate(bool is7DayStake) external whenNotPaused {
+        require(!emergencyMode, "Emergency mode active");
+
+        if (is7DayStake) {
+            Stake storage userStake = stakes7Days[msg.sender];
+            require(userStake.amount > 0, "No stake found");
+            require(userStake.isLocked, "Stake not locked");
+            require(userStake.unlockRequestTime == 0, "Cannot opt-in during unlock");
+            require(userStake.rate < rewardRate7Days, "Current rate not lower");
+            
+            // Calculate and add pending rewards at old rate
+            uint256 pendingRewards = calculatePendingRewards(userStake);
+            uint256 originalAmount = userStake.amount;
+            
+            if (pendingRewards > 0) {
+                userStake.amount += pendingRewards;
+                stakingStats7Days[msg.sender].totalCompounded += pendingRewards;
+                emit StakeCompounded(msg.sender, originalAmount, pendingRewards, userStake.amount, "7-Day");
+            }
+            
+            // Update to new rate
+            uint256 oldRate = userStake.rate;
+            userStake.rate = rewardRate7Days;
+            userStake.since = block.timestamp;
+            
+            emit RateUpdateOptIn(msg.sender, "7-Day", oldRate, rewardRate7Days);
+        } else {
+            Stake storage userStake = stakes1Year[msg.sender];
+            require(userStake.amount > 0, "No stake found");
+            require(userStake.isLocked, "Stake not locked");
+            require(userStake.unlockRequestTime == 0, "Cannot opt-in during unlock");
+            require(userStake.rate < rewardRate1Year, "Current rate not lower");
+            
+            // Calculate and add pending rewards at old rate
+            uint256 pendingRewards = calculatePendingRewards(userStake);
+            uint256 originalAmount = userStake.amount;
+            
+            if (pendingRewards > 0) {
+                userStake.amount += pendingRewards;
+                stakingStats1Year[msg.sender].totalCompounded += pendingRewards;
+                emit StakeCompounded(msg.sender, originalAmount, pendingRewards, userStake.amount, "1-Year");
+            }
+            
+            // Update to new rate
+            uint256 oldRate = userStake.rate;
+            userStake.rate = rewardRate1Year;
+            userStake.since = block.timestamp;
+            
+            emit RateUpdateOptIn(msg.sender, "1-Year", oldRate, rewardRate1Year);
+        }
+    }
+
+        function pause() external onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(PAUSER_ROLE) {
+        _unpause();
     }
 
 }
