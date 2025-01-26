@@ -1,11 +1,19 @@
 const hre = require("hardhat");
 const { ethers } = hre;
+require('dotenv').config();
 
 async function main() {
   // Get the deployer account
   const [deployer] = await ethers.getSigners();
 
-  const stakingAddress = "0x30a301d3A0f8f9539518a20C4Dc0AbD9331d481D"; // Replace with your staking contract address
+  // Get staking address from .env
+  const stakingAddress = process.env.STAKING_CONTRACT_ADDRESS_SEPOLIA;
+  
+  if (!stakingAddress) {
+    throw new Error("STAKING_CONTRACT_ADDRESS_SEPOLIA not found in .env file");
+  }
+
+  console.log("Using staking contract address:", stakingAddress);
 
   // Get the contract ABI from artifacts
   const MoonCatStakingArtifact = await hre.artifacts.readArtifact("MoonCatStaking");
