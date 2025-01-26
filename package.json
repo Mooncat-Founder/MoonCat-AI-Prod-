@@ -31,7 +31,7 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.12",
-    "hardhat": "^2.22.16",
+    "hardhat": "^2.22.18",
     "hardhat-dependency-compiler": "^1.2.1",
     "truffle-plugin-verify": "^0.6.7"
   },
