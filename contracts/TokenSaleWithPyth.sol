@@ -13,7 +13,7 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     IERC20 public mctToken;
     IERC20 public usdtToken;
     IPyth public pyth;
-    bytes32 public constant ETH_USD_PRICE_ID = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace; // Pyth ETH/USD price feed ID
+    bytes32 public constant ETH_USD_PRICE_ID = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
     address public treasuryWallet;
     uint256 public totalEthRaised;
     uint256 public totalUsdtRaised;
@@ -25,13 +25,20 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     uint256 public remainingTokens;
     bool public paused;
 
+    // New price update related state variables
+    uint256 private priceUpdateBalance;
+    uint256 public lastPriceTimestamp;
+    uint256 public cachedEthPrice;
 
     // Constants for price calculations
     uint256 public constant TOKEN_PRICE_USD = 5000000; // $0.005 with 6 decimals
     uint256 public constant MIN_PURCHASE_USD = 100000000; // $100 with 6 decimals
     uint256 public constant MAX_PURCHASE_USD = 50000000000; // $50,000 with 6 decimals
     uint256 public constant PRICE_FRESHNESS_THRESHOLD = 120; // 120 seconds staleness threshold
-    
+
+    // Add new events for price updates
+    event PriceUpdatesFunded(uint256 amount, uint256 newBalance);
+    event PriceUpdated(uint256 oldPrice, uint256 newPrice, uint256 timestamp);
     event FundsWithdrawn(address indexed token, uint256 amount);
     event EthWithdrawn(uint256 amount);
     event TreasuryWalletUpdated(address indexed newWallet);
@@ -43,8 +50,8 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     event TokensWithdrawn(address indexed user, uint256 amount);
     event ContractPaused(address indexed owner);
     event ContractUnpaused(address indexed owner);
-    
-     constructor(
+
+    constructor(
         address _mctToken,
         address _usdtToken,
         address _treasuryWallet,
@@ -60,34 +67,54 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         pyth = IPyth(_pythAddress);
         remainingTokens = mctToken.balanceOf(address(this));
     }
-    
-    function getEthPrice() public view returns (uint256) {
-        // Use getPriceNoOlderThan instead of getPriceUnsafe
+
+    modifier whenNotPaused() {
+        require(!paused, "Contract is paused");
+        _;
+    }
+
+    // New function to fund price updates
+    function fundPriceUpdates() external payable onlyOwner {
+        priceUpdateBalance += msg.value;
+        emit PriceUpdatesFunded(msg.value, priceUpdateBalance);
+    }
+
+    // Modified to handle price updates
+    function updateEthPrice(bytes[] calldata priceUpdate) public returns (uint256) {
+        require(priceUpdateBalance > 0, "Contract needs funds for price updates");
+        uint256 fee = pyth.getUpdateFee(priceUpdate);
+        require(priceUpdateBalance >= fee, "Insufficient update funds");
+
+        uint256 oldPrice = cachedEthPrice;
+        pyth.updatePriceFeeds{value: fee}(priceUpdate);
+        priceUpdateBalance -= fee;
+
         PythStructs.Price memory price = pyth.getPriceNoOlderThan(
             ETH_USD_PRICE_ID,
             PRICE_FRESHNESS_THRESHOLD
         );
-        
-        // Revert on negative prices
+
         require(price.price > 0, "Invalid price feed: negative or zero value");
-        
-        // Convert confidence to same type for comparison (positive values only)
         require(uint64(price.conf) <= uint64(price.price) / 100, "Price confidence interval too large");
-        
-        // Check for price staleness using expo
         require(price.expo == -8, "Unexpected price feed decimals");
-        
-        // Convert to uint256 and adjust decimals from Pyth's to USDT's 6 decimals
-        return uint256(uint64(price.price)) / 100;
+
+        uint256 newPrice = uint256(uint64(price.price)) / 100;
+        cachedEthPrice = newPrice;
+        lastPriceTimestamp = block.timestamp;
+
+        emit PriceUpdated(oldPrice, newPrice, block.timestamp);
+        return newPrice;
     }
-        
-    function setTreasuryWallet(address _newWallet) external onlyOwner {
-        require(_newWallet != address(0), "Invalid address");
-        treasuryWallet = _newWallet;
-        emit TreasuryWalletUpdated(_newWallet);
+
+    // Modified to use cached price with freshness check
+    function getEthPrice() public view returns (uint256) {
+        require(cachedEthPrice > 0, "Price not initialized");
+        require(block.timestamp - lastPriceTimestamp <= PRICE_FRESHNESS_THRESHOLD, "Price too old");
+        return cachedEthPrice;
     }
-    
-    function buyWithETH() external payable nonReentrant whenNotPaused {
+
+    // Modified buyWithETH to use the new price mechanism
+    function buyWithETH() public payable nonReentrant whenNotPaused {
         require(!emergencyMode, "Emergency mode: purchases disabled");
         require(msg.value > 0, "No ETH sent");
         require(!saleFinalized, "Sale is finished");
@@ -113,7 +140,8 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
             emit SaleFinalized();
         }
     }
-    
+
+    // Rest of your existing functions remain unchanged
     function buyWithUSDT(uint256 amount) external nonReentrant whenNotPaused {
         require(!emergencyMode, "Emergency mode: purchases disabled");
         require(amount > 0, "No USDT sent");
@@ -124,7 +152,6 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         uint256 tokenAmount = calculateTokensForUsd(amount);
         require(tokenAmount <= remainingTokens, "Not enough tokens remaining");
         
-        // Replace transferFrom with safeTransferFrom
         usdtToken.safeTransferFrom(msg.sender, address(this), amount);
                 
         remainingTokens -= tokenAmount;
@@ -139,7 +166,23 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
             emit SaleFinalized();
         }
     }
-   
+
+    // Add function to withdraw unused price update funds
+    function withdrawPriceUpdateFunds() external onlyOwner {
+        uint256 amount = priceUpdateBalance;
+        require(amount > 0, "No funds to withdraw");
+        priceUpdateBalance = 0;
+        (bool success, ) = owner().call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+
+    // Existing functions remain unchanged...
+    function setTreasuryWallet(address _newWallet) external onlyOwner {
+        require(_newWallet != address(0), "Invalid address");
+        treasuryWallet = _newWallet;
+        emit TreasuryWalletUpdated(_newWallet);
+    }
+
     function finalizeSale() external onlyOwner {
         saleFinalized = true;
         emit SaleFinalized();
@@ -151,14 +194,12 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         require(amount > 0, "No tokens to withdraw");
         
         pendingTokens[msg.sender] = 0;
-        
-        // Replace transfer with safeTransfer
         mctToken.safeTransfer(msg.sender, amount);
         emit TokensWithdrawn(msg.sender, amount);
     }
 
     function withdrawETH() external onlyOwner {
-        uint256 balance = address(this).balance;
+        uint256 balance = address(this).balance - priceUpdateBalance; // Don't withdraw price update funds
         require(balance > 0, "No ETH to withdraw");
         
         (bool sent, ) = treasuryWallet.call{value: balance}("");
@@ -171,7 +212,6 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         uint256 balance = usdtToken.balanceOf(address(this));
         require(balance > 0, "No USDT to withdraw");
         
-        // Replace transfer with safeTransfer
         usdtToken.safeTransfer(treasuryWallet, balance);
         emit FundsWithdrawn(address(usdtToken), balance);
     }
@@ -184,7 +224,6 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         uint256 balance = tokenContract.balanceOf(address(this));
         require(balance > 0, "No tokens to withdraw");
         
-        // Replace transfer with safeTransfer
         tokenContract.safeTransfer(treasuryWallet, balance);
         emit FundsWithdrawn(token, balance);
     }
@@ -193,13 +232,9 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         return (totalEthRaised, totalUsdtRaised);
     }
     
-function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) {
-    // usdAmount is in USDT decimals (6)
-    // TOKEN_PRICE_USD is 5000000 ($0.005 with 6 decimals)
-    // We want to return tokens with 18 decimals
-    // Formula: (usdAmount * 1e18) / (TOKEN_PRICE_USD / 1000)
-    return (usdAmount * 1e18 * 1000) / TOKEN_PRICE_USD;
-}
+    function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) {
+        return (usdAmount * 1e18 * 1000) / TOKEN_PRICE_USD;
+    }
 
     function getTokenBalance(address user) external view returns (uint256) {
         return pendingTokens[user];
@@ -207,11 +242,6 @@ function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) 
 
     function getUserContributions(address user) external view returns (uint256 eth, uint256 usdt) {
         return (ethContributions[user], usdtContributions[user]);
-    }
-
-    modifier whenNotPaused() {
-        require(!paused, "Contract is paused");
-        _;
     }
 
     function pause() external onlyOwner {
@@ -230,8 +260,8 @@ function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) 
     }
 
     function disableEmergencyMode() external onlyOwner {
-    emergencyMode = false;
-    emit EmergencyModeDisabled();
+        emergencyMode = false;
+        emit EmergencyModeDisabled();
     }
 
     function emergencyWithdraw() external nonReentrant {
@@ -256,5 +286,8 @@ function calculateTokensForUsd(uint256 usdAmount) public pure returns (uint256) 
         emit EmergencyWithdraw(msg.sender, ethAmount, usdtAmount);
     }
 
-    receive() external payable {}
+    receive() external payable {
+        buyWithETH();
+    }
+
 }
