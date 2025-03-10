@@ -1,7 +1,8 @@
+//check-sale-contract.js
 const { ethers } = require("hardhat");
 
 async function main() {
-    const contractAddress = "0x9F34E732BE4184C4B15A697fcdA5a2EFD006612E";
+    const contractAddress = "0x785695aA023E5EecF1bF1A4F311048A34eb6acB1";
     
     // Get the contract factory
     const TokenSale = await ethers.getContractFactory("TokenSaleWithPyth");

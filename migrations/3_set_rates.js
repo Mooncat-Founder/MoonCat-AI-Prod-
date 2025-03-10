@@ -7,7 +7,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   // Get staking address from .env
-  const stakingAddress = process.env.STAKING_CONTRACT_ADDRESS_SEPOLIA;
+  const stakingAddress = process.env.UNICHAIN_STAKING_CONTRACT;
   
   if (!stakingAddress) {
     throw new Error("STAKING_CONTRACT_ADDRESS_SEPOLIA not found in .env file");

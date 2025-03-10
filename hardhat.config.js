@@ -4,25 +4,39 @@ require("@nomicfoundation/hardhat-verify");
 require('dotenv').config();
 
 module.exports = {
-  solidity: "0.8.27",  // keeping your version
+  solidity: "0.8.27",
   networks: {
-    'unichain-sepolia-testnet': {  // changed network name
-      url: 'https://sepolia.unichain.org',  // using their recommended URL
+    'unichain-sepolia-testnet': {
+      url: 'https://sepolia.unichain.org',
       chainId: 1301,
-      accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+      accounts: [`0x${process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY}`],
+    },
+    'unichain-mainnet': {
+      url: 'https://mainnet.unichain.org/',
+      chainId: 130, // Unichain mainnet chain ID
+      accounts: [`0x${process.env.MAINNET_DEPLOYER_PRIVATE_KEY}`],
     },
   },
   etherscan: {
     apiKey: {
-      'unichain-sepolia-testnet': 'empty'  // using their recommended naming
+      'unichain-sepolia-testnet': 'empty',
+      'unichain-mainnet': 'empty'
     },
     customChains: [
       {
-        network: "unichain-sepolia-testnet",  // matched to their network name
+        network: "unichain-sepolia-testnet",
         chainId: 1301,
         urls: {
-          apiURL: "https://unichain-sepolia.blockscout.com/api",  // using their API URL
-          browserURL: "https://unichain-sepolia.blockscout.com"    // using their browser URL
+          apiURL: "https://unichain-sepolia.blockscout.com/api",
+          browserURL: "https://unichain-sepolia.blockscout.com"
+        }
+      },
+      {
+        network: "unichain-mainnet",
+        chainId: 130,
+        urls: {
+          apiURL: "https://unichain.blockscout.com/api",
+          browserURL: "https://unichain.blockscout.com"
         }
       }
     ]

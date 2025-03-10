@@ -25,20 +25,14 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     uint256 public remainingTokens;
     bool public paused;
 
-    // New price update related state variables
-    uint256 private priceUpdateBalance;
-    uint256 public lastPriceTimestamp;
-    uint256 public cachedEthPrice;
-
     // Constants for price calculations
     uint256 public constant TOKEN_PRICE_USD = 5000000; // $0.005 with 6 decimals
     uint256 public constant MIN_PURCHASE_USD = 100000000; // $100 with 6 decimals
     uint256 public constant MAX_PURCHASE_USD = 50000000000; // $50,000 with 6 decimals
     uint256 public constant PRICE_FRESHNESS_THRESHOLD = 120; // 120 seconds staleness threshold
 
-    // Add new events for price updates
     event PriceUpdatesFunded(uint256 amount, uint256 newBalance);
-    event PriceUpdated(uint256 oldPrice, uint256 newPrice, uint256 timestamp);
+    event PriceUpdated(uint256 price, uint256 timestamp);
     event FundsWithdrawn(address indexed token, uint256 amount);
     event EthWithdrawn(uint256 amount);
     event TreasuryWalletUpdated(address indexed newWallet);
@@ -61,6 +55,7 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         require(_usdtToken != address(0), "USDT: zero address");
         require(_treasuryWallet != address(0), "Treasury: zero address");
         require(_pythAddress != address(0), "Pyth: zero address");
+        
         mctToken = IERC20(_mctToken);
         usdtToken = IERC20(_usdtToken);
         treasuryWallet = _treasuryWallet;
@@ -73,54 +68,24 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         _;
     }
 
-    // New function to fund price updates
-    function fundPriceUpdates() external payable onlyOwner {
-        priceUpdateBalance += msg.value;
-        emit PriceUpdatesFunded(msg.value, priceUpdateBalance);
-    }
-
-    // Modified to handle price updates
-    function updateEthPrice(bytes[] calldata priceUpdate) public returns (uint256) {
-        require(priceUpdateBalance > 0, "Contract needs funds for price updates");
-        uint256 fee = pyth.getUpdateFee(priceUpdate);
-        require(priceUpdateBalance >= fee, "Insufficient update funds");
-
-        uint256 oldPrice = cachedEthPrice;
-        pyth.updatePriceFeeds{value: fee}(priceUpdate);
-        priceUpdateBalance -= fee;
-
-        PythStructs.Price memory price = pyth.getPriceNoOlderThan(
-            ETH_USD_PRICE_ID,
-            PRICE_FRESHNESS_THRESHOLD
-        );
-
-        require(price.price > 0, "Invalid price feed: negative or zero value");
-        require(uint64(price.conf) <= uint64(price.price) / 100, "Price confidence interval too large");
-        require(price.expo == -8, "Unexpected price feed decimals");
-
-        uint256 newPrice = uint256(uint64(price.price)) / 100;
-        cachedEthPrice = newPrice;
-        lastPriceTimestamp = block.timestamp;
-
-        emit PriceUpdated(oldPrice, newPrice, block.timestamp);
-        return newPrice;
-    }
-
-    // Modified to use cached price with freshness check
-    function getEthPrice() public view returns (uint256) {
-        require(cachedEthPrice > 0, "Price not initialized");
-        require(block.timestamp - lastPriceTimestamp <= PRICE_FRESHNESS_THRESHOLD, "Price too old");
-        return cachedEthPrice;
-    }
-
-    // Modified buyWithETH to use the new price mechanism
-    function buyWithETH() public payable nonReentrant whenNotPaused {
+     function buyWithETH(bytes[] calldata priceUpdate) public payable nonReentrant whenNotPaused {
         require(!emergencyMode, "Emergency mode: purchases disabled");
         require(msg.value > 0, "No ETH sent");
         require(!saleFinalized, "Sale is finished");
+
+        // Update price feed
+        uint256 fee = pyth.getUpdateFee(priceUpdate);
+        require(msg.value > fee, "Insufficient ETH for price update fee");
+        pyth.updatePriceFeeds{value: fee}(priceUpdate);
         
-        uint256 ethPrice = getEthPrice();
-        uint256 usdValue = (msg.value * ethPrice) / 1e18;
+        // Get current ETH/USD price
+        PythStructs.Price memory price = pyth.getPriceNoOlderThan(ETH_USD_PRICE_ID, PRICE_FRESHNESS_THRESHOLD);
+        require(price.price > 0, "Invalid price feed");
+        require(uint64(price.conf) <= uint64(price.price) / 100, "Price confidence too large");
+        
+        uint256 ethPrice = uint256(uint64(price.price)) / 100;
+        uint256 purchaseAmount = msg.value - fee;
+        uint256 usdValue = (purchaseAmount * ethPrice) / 1e18;
         
         require(usdValue >= MIN_PURCHASE_USD, "Below minimum purchase");
         require(usdValue <= MAX_PURCHASE_USD, "Exceeds maximum purchase");
@@ -129,11 +94,12 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         require(tokenAmount <= remainingTokens, "Not enough tokens remaining");
         
         remainingTokens -= tokenAmount;
-        totalEthRaised += msg.value;
-        ethContributions[msg.sender] += msg.value;
+        totalEthRaised += purchaseAmount;
+        ethContributions[msg.sender] += purchaseAmount;
         
         pendingTokens[msg.sender] += tokenAmount;
         emit TokensPurchased(msg.sender, usdValue, tokenAmount);
+        emit PriceUpdated(ethPrice, block.timestamp);
         
         if (remainingTokens == 0) {
             saleFinalized = true;
@@ -141,7 +107,6 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         }
     }
 
-    // Rest of your existing functions remain unchanged
     function buyWithUSDT(uint256 amount) external nonReentrant whenNotPaused {
         require(!emergencyMode, "Emergency mode: purchases disabled");
         require(amount > 0, "No USDT sent");
@@ -167,16 +132,6 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         }
     }
 
-    // Add function to withdraw unused price update funds
-    function withdrawPriceUpdateFunds() external onlyOwner {
-        uint256 amount = priceUpdateBalance;
-        require(amount > 0, "No funds to withdraw");
-        priceUpdateBalance = 0;
-        (bool success, ) = owner().call{value: amount}("");
-        require(success, "Transfer failed");
-    }
-
-    // Existing functions remain unchanged...
     function setTreasuryWallet(address _newWallet) external onlyOwner {
         require(_newWallet != address(0), "Invalid address");
         treasuryWallet = _newWallet;
@@ -199,7 +154,7 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     }
 
     function withdrawETH() external onlyOwner {
-        uint256 balance = address(this).balance - priceUpdateBalance; // Don't withdraw price update funds
+        uint256 balance = address(this).balance;
         require(balance > 0, "No ETH to withdraw");
         
         (bool sent, ) = treasuryWallet.call{value: balance}("");
@@ -243,6 +198,10 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
     function getUserContributions(address user) external view returns (uint256 eth, uint256 usdt) {
         return (ethContributions[user], usdtContributions[user]);
     }
+    
+    function resetRemainingTokens() external onlyOwner {
+    remainingTokens = mctToken.balanceOf(address(this));
+    }
 
     function pause() external onlyOwner {
         paused = true;
@@ -285,9 +244,4 @@ contract TokenSaleWithPyth is ReentrancyGuard, Ownable {
         
         emit EmergencyWithdraw(msg.sender, ethAmount, usdtAmount);
     }
-
-    receive() external payable {
-        buyWithETH();
-    }
-
 }

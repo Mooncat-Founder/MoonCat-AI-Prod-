@@ -18,7 +18,14 @@ async function deployAndVerify(contractName, args) {
     });
     console.log(`${contractName} verified successfully`);
   } catch (e) {
-    console.log(`${contractName} verification failed:`, e);
+    // Check if the error is because the contract is already verified
+    if (e.message.includes("Contract already verified") || 
+        e.message.includes("ContractAlreadyVerifiedError") ||
+        e.message.includes("already verified")) {
+      console.log(`${contractName} is already verified on the block explorer`);
+    } else {
+      console.log(`${contractName} verification failed:`, e);
+    }
   }
 
   return contract;
