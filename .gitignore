@@ -3,6 +3,8 @@
 keypair
 keypair.pub
 multisig_keys.json
+keys.prod.json
+keys.test.json
 **/multisig_keys.*
 
 # Logs

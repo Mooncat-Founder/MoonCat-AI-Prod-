@@ -23,9 +23,10 @@
     "alchemy-sdk": "^3.4.1",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
-    "ethers": "^6.7.1",
+    "ethers": "^6.11.1",
     "truffle": "^5.11.5",
     "truffle-flattener": "^1.6.0",
+    "uuid": "^11.1.0",
     "web3": "^1.10.0"
   },
   "devDependencies": {

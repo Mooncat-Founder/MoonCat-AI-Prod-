@@ -16,7 +16,7 @@ import { AbiCoder } from "../abi/index.js";
 import { getAddress, resolveAddress } from "../address/index.js";
 import { TypedDataEncoder } from "../hash/index.js";
 import { accessListify } from "../transaction/index.js";
-import { defineProperties, getBigInt, hexlify, isHexString, toQuantity, toUtf8Bytes, makeError, assert, assertArgument, FetchRequest, resolveProperties } from "../utils/index.js";
+import { defineProperties, getBigInt, hexlify, isHexString, toQuantity, toUtf8Bytes, isError, makeError, assert, assertArgument, FetchRequest, resolveProperties } from "../utils/index.js";
 import { AbstractProvider, UnmanagedSubscriber } from "./abstract-provider.js";
 import { AbstractSigner } from "./abstract-signer.js";
 import { Network } from "./network.js";
@@ -133,12 +133,45 @@ export class JsonRpcSigner extends AbstractSigner {
         // for it; it should show up very quickly
         return await (new Promise((resolve, reject) => {
             const timeouts = [1000, 100];
+            let invalids = 0;
             const checkTx = async () => {
-                // Try getting the transaction
-                const tx = await this.provider.getTransaction(hash);
-                if (tx != null) {
-                    resolve(tx.replaceableTransaction(blockNumber));
-                    return;
+                try {
+                    // Try getting the transaction
+                    const tx = await this.provider.getTransaction(hash);
+                    if (tx != null) {
+                        resolve(tx.replaceableTransaction(blockNumber));
+                        return;
+                    }
+                }
+                catch (error) {
+                    // If we were cancelled: stop polling.
+                    // If the data is bad: the node returns bad transactions
+                    // If the network changed: calling again will also fail
+                    // If unsupported: likely destroyed
+                    if (isError(error, "CANCELLED") || isError(error, "BAD_DATA") ||
+                        isError(error, "NETWORK_ERROR" || isError(error, "UNSUPPORTED_OPERATION"))) {
+                        if (error.info == null) {
+                            error.info = {};
+                        }
+                        error.info.sendTransactionHash = hash;
+                        reject(error);
+                        return;
+                    }
+                    // Stop-gap for misbehaving backends; see #4513
+                    if (isError(error, "INVALID_ARGUMENT")) {
+                        invalids++;
+                        if (error.info == null) {
+                            error.info = {};
+                        }
+                        error.info.sendTransactionHash = hash;
+                        if (invalids > 10) {
+                            reject(error);
+                            return;
+                        }
+                    }
+                    // Notify anyone that cares; but we will try again, since
+                    // it is likely an intermittent service error
+                    this.provider.emit("error", makeError("failed to fetch transation after sending (will try again)", "UNKNOWN_ERROR", { error }));
                 }
                 // Wait another 4 seconds
                 this.provider._setTimeout(() => { checkTx(); }, timeouts.pop() || 4000);
@@ -211,11 +244,12 @@ export class JsonRpcApiProvider extends AbstractProvider {
     #drainTimer;
     #notReady;
     #network;
+    #pendingDetectNetwork;
     #scheduleDrain() {
         if (this.#drainTimer) {
             return;
         }
-        // If we aren't using batching, no hard in sending it immeidately
+        // If we aren't using batching, no harm in sending it immediately
         const stallTime = (this._getOption("batchMaxCount") === 1) ? 0 : this._getOption("batchStallTime");
         this.#drainTimer = setTimeout(() => {
             this.#drainTimer = null;
@@ -286,6 +320,7 @@ export class JsonRpcApiProvider extends AbstractProvider {
         this.#payloads = [];
         this.#drainTimer = null;
         this.#network = null;
+        this.#pendingDetectNetwork = null;
         {
             let resolve = null;
             const promise = new Promise((_resolve) => {
@@ -293,9 +328,15 @@ export class JsonRpcApiProvider extends AbstractProvider {
             });
             this.#notReady = { promise, resolve };
         }
-        // Make sure any static network is compatbile with the provided netwrok
         const staticNetwork = this._getOption("staticNetwork");
-        if (staticNetwork) {
+        if (typeof (staticNetwork) === "boolean") {
+            assertArgument(!staticNetwork || network !== "any", "staticNetwork cannot be used on special network 'any'", "options", options);
+            if (staticNetwork && network != null) {
+                this.#network = Network.from(network);
+            }
+        }
+        else if (staticNetwork) {
+            // Make sure any static network is compatbile with the provided netwrok
             assertArgument(network == null || staticNetwork.matches(network), "staticNetwork MUST match network object", "options", options);
             this.#network = staticNetwork;
         }
@@ -356,30 +397,56 @@ export class JsonRpcApiProvider extends AbstractProvider {
     async _detectNetwork() {
         const network = this._getOption("staticNetwork");
         if (network) {
-            return network;
+            if (network === true) {
+                if (this.#network) {
+                    return this.#network;
+                }
+            }
+            else {
+                return network;
+            }
+        }
+        if (this.#pendingDetectNetwork) {
+            return await this.#pendingDetectNetwork;
         }
         // If we are ready, use ``send``, which enabled requests to be batched
         if (this.ready) {
-            return Network.from(getBigInt(await this.send("eth_chainId", [])));
+            this.#pendingDetectNetwork = (async () => {
+                try {
+                    const result = Network.from(getBigInt(await this.send("eth_chainId", [])));
+                    this.#pendingDetectNetwork = null;
+                    return result;
+                }
+                catch (error) {
+                    this.#pendingDetectNetwork = null;
+                    throw error;
+                }
+            })();
+            return await this.#pendingDetectNetwork;
         }
         // We are not ready yet; use the primitive _send
-        const payload = {
-            id: this.#nextId++, method: "eth_chainId", params: [], jsonrpc: "2.0"
-        };
-        this.emit("debug", { action: "sendRpcPayload", payload });
-        let result;
-        try {
-            result = (await this._send(payload))[0];
-        }
-        catch (error) {
-            this.emit("debug", { action: "receiveRpcError", error });
-            throw error;
-        }
-        this.emit("debug", { action: "receiveRpcResult", result });
-        if ("result" in result) {
-            return Network.from(getBigInt(result.result));
-        }
-        throw this.getRpcError(payload, result);
+        this.#pendingDetectNetwork = (async () => {
+            const payload = {
+                id: this.#nextId++, method: "eth_chainId", params: [], jsonrpc: "2.0"
+            };
+            this.emit("debug", { action: "sendRpcPayload", payload });
+            let result;
+            try {
+                result = (await this._send(payload))[0];
+                this.#pendingDetectNetwork = null;
+            }
+            catch (error) {
+                this.#pendingDetectNetwork = null;
+                this.emit("debug", { action: "receiveRpcError", error });
+                throw error;
+            }
+            this.emit("debug", { action: "receiveRpcResult", result });
+            if ("result" in result) {
+                return Network.from(getBigInt(result.result));
+            }
+            throw this.getRpcError(payload, result);
+        })();
+        return await this.#pendingDetectNetwork;
     }
     /**
      *  Sub-classes **MUST** call this. Until [[_start]] has been called, no calls
@@ -495,6 +562,8 @@ export class JsonRpcApiProvider extends AbstractProvider {
                 return { method: "eth_blockNumber", args: [] };
             case "getGasPrice":
                 return { method: "eth_gasPrice", args: [] };
+            case "getPriorityFee":
+                return { method: "eth_maxPriorityFeePerGas", args: [] };
             case "getBalance":
                 return {
                     method: "eth_getBalance",
