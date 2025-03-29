@@ -21,8 +21,8 @@ npm-debug.log*
 .pnp.js
 
 # Hardhat
-/artifacts
-/cache
+artifacts
+cache
 /typechain
 /typechain-types
 
