@@ -1,126 +1,6 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "C:\\GitHub\\mooncat_ai\\contracts\\migrations.sol": {
-      "lastModificationDate": 1737543486337,
-      "contentHash": "edc31c6ef1416d0f580c1c40cd2da8b0",
-      "sourceName": "contracts/migrations.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.27"
-      ],
-      "artifacts": [
-        "Migrations"
-      ]
-    },
-    "C:\\GitHub\\mooncat_ai\\contracts\\MoonCatStaking.sol": {
-      "lastModificationDate": 1737543486337,
-      "contentHash": "46ada84a2831009dbd17dd9e6e495c9e",
-      "sourceName": "contracts/MoonCatStaking.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./MoonCatToken.sol",
-        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
-        "@openzeppelin/contracts/access/AccessControl.sol",
-        "@openzeppelin/contracts/utils/Pausable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.27"
-      ],
-      "artifacts": [
-        "MoonCatStaking"
-      ]
-    },
-    "C:\\GitHub\\mooncat_ai\\contracts\\MoonCatToken.sol": {
-      "lastModificationDate": 1737935074356,
-      "contentHash": "08704d8689979b8bafe1b2620cce4c44",
-      "sourceName": "contracts/MoonCatToken.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol",
-        "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol",
-        "@openzeppelin/contracts/utils/Pausable.sol",
-        "@openzeppelin/contracts/access/Ownable.sol",
-        "@openzeppelin/contracts/utils/Nonces.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.27"
-      ],
-      "artifacts": [
-        "MoonCatToken"
-      ]
-    },
     "C:\\GitHub\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\utils\\ReentrancyGuard.sol": {
       "lastModificationDate": 1737543493348,
       "contentHash": "cd2d6c05f08c57db756caa40f32b6a89",
@@ -1483,49 +1363,6 @@
       ],
       "artifacts": []
     },
-    "C:\\GitHub\\mooncat_ai\\contracts\\TokenSaleWithPyth.sol": {
-      "lastModificationDate": 1739674227818,
-      "contentHash": "f2612bc3d3472f56a221b086d7538faf",
-      "sourceName": "contracts/TokenSaleWithPyth.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
-        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
-        "@openzeppelin/contracts/access/Ownable.sol",
-        "@pythnetwork/pyth-sdk-solidity/IPyth.sol",
-        "@pythnetwork/pyth-sdk-solidity/PythStructs.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.27"
-      ],
-      "artifacts": [
-        "TokenSaleWithPyth"
-      ]
-    },
     "C:\\GitHub\\mooncat_ai\\node_modules\\@pythnetwork\\pyth-sdk-solidity\\IPyth.sol": {
       "lastModificationDate": 1737543493680,
       "contentHash": "81413fe1641a60099ca33bffd091243c",
@@ -1674,44 +1511,6 @@
       ],
       "artifacts": [
         "IPythEvents"
-      ]
-    },
-    "C:\\GitHub\\mooncat_ai\\contracts\\USDT-Sepolia.sol": {
-      "lastModificationDate": 1738875998390,
-      "contentHash": "c0747bb1e98ffaa445912ef12278b892",
-      "sourceName": "contracts/USDT-Sepolia.sol",
-      "solcConfig": {
-        "version": "0.8.27",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.27"
-      ],
-      "artifacts": [
-        "USDT"
       ]
     },
     "C:\\GitHub\\mooncat_ai\\node_modules\\@openzeppelin\\contracts\\governance\\TimelockController.sol": {
@@ -1980,10 +1779,137 @@
         "IERC721Receiver"
       ]
     },
-    "C:\\GitHub\\mooncat_ai\\contracts\\TimeLock.sol": {
-      "lastModificationDate": 1740809754782,
+    "C:\\GitHub\\mooncat_ai\\contracts\\libraries\\MoonCatStaking.sol": {
+      "lastModificationDate": 1743205883484,
+      "contentHash": "46ada84a2831009dbd17dd9e6e495c9e",
+      "sourceName": "contracts/libraries/MoonCatStaking.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./MoonCatToken.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/access/AccessControl.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.27"
+      ],
+      "artifacts": [
+        "MoonCatStaking"
+      ]
+    },
+    "C:\\GitHub\\mooncat_ai\\contracts\\libraries\\MoonCatToken.sol": {
+      "lastModificationDate": 1743205883493,
+      "contentHash": "08704d8689979b8bafe1b2620cce4c44",
+      "sourceName": "contracts/libraries/MoonCatToken.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol",
+        "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/Nonces.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.27"
+      ],
+      "artifacts": [
+        "MoonCatToken"
+      ]
+    },
+    "C:\\GitHub\\mooncat_ai\\contracts\\libraries\\TokenSaleWithPyth.sol": {
+      "lastModificationDate": 1743205890712,
+      "contentHash": "f2612bc3d3472f56a221b086d7538faf",
+      "sourceName": "contracts/libraries/TokenSaleWithPyth.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@pythnetwork/pyth-sdk-solidity/IPyth.sol",
+        "@pythnetwork/pyth-sdk-solidity/PythStructs.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.27"
+      ],
+      "artifacts": [
+        "TokenSaleWithPyth"
+      ]
+    },
+    "C:\\GitHub\\mooncat_ai\\contracts\\libraries\\TimeLock.sol": {
+      "lastModificationDate": 1743205883499,
       "contentHash": "866cea24c9bd4eac80a92128bf5256c9",
-      "sourceName": "contracts/TimeLock.sol",
+      "sourceName": "contracts/libraries/TimeLock.sol",
       "solcConfig": {
         "version": "0.8.27",
         "settings": {
@@ -2017,6 +1943,44 @@
       "artifacts": [
         "MoonCatSaleTimelock",
         "MoonCatStakingTimelock"
+      ]
+    },
+    "C:\\GitHub\\mooncat_ai\\contracts\\mocks\\USDT-Sepolia.sol": {
+      "lastModificationDate": 1743205788123,
+      "contentHash": "c0747bb1e98ffaa445912ef12278b892",
+      "sourceName": "contracts/mocks/USDT-Sepolia.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.27"
+      ],
+      "artifacts": [
+        "USDT"
       ]
     }
   }

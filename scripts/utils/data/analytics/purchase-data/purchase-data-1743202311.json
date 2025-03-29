@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "network": "unichain-sepolia-testnet",
+    "saleContractAddress": "0xD0613Ea1e2853A132CD343FecE8d2eb88d179c60",
+    "mctToken": {
+      "address": "0x46fF7E889Ba77466D43CEf70fF150b6f33d640A3",
+      "name": "MoonCat",
+      "symbol": "MCT",
+      "decimals": "18"
+    },
+    "usdtToken": {
+      "address": "0xe9055A1790179a4B16b5FeCaa476a1122de539fE",
+      "decimals": "6"
+    },
+    "saleStatus": {
+      "totalEthRaised": "0.0",
+      "totalUsdtRaised": "0.0",
+      "estimatedTotalUsdRaised": "0.00",
+      "remainingTokens": "400000000.0"
+    },
+    "uniqueBuyers": 0,
+    "totalPurchases": 0,
+    "blockRange": {
+      "start": 16299852,
+      "end": 16349852
+    }
+  },
+  "purchases": []
+}

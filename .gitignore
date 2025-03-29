@@ -14,3 +14,12 @@ npm-debug.log*
 # IDE files
 .vscode/
 .idea/
+
+# Dependencies
+node_modules
+
+# Build artifacts
+dist/
+build/
+artifacts/
+cache/
