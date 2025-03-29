@@ -12,14 +12,42 @@ keys.test.json
 npm-debug.log*
 
 # IDE files
-.vscode/
-.idea/
+.vscode
+.idea
 
 # Dependencies
-node_modules
+/node_modules
+/.pnp
+.pnp.js
 
-# Build artifacts
-dist/
-build/
-artifacts/
-cache/
+# Hardhat
+/artifacts
+/cache
+/typechain
+/typechain-types
+
+# Production build
+/build
+/dist
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+coverage
+coverage.json
+test-results.xml
