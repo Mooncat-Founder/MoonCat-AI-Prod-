@@ -37,7 +37,15 @@ const TIMELOCK_ABI = [
 const CONTRACT_ABI = [
   "function unpause() external",
   "function pause() external",
-  "function paused() external view returns (bool)"
+  "function paused() external view returns (bool)",
+  "function rewardRate7Days() external view returns (uint256)",
+  "function rewardRate1Year() external view returns (uint256)"
+];
+
+// Staking ABI for rate functions
+const STAKING_ABI = [
+  "function setRewardRate7Days(uint256 _newRate) external",
+  "function setRewardRate1Year(uint256 _newRate) external"
 ];
 
 async function generateSignature(signer, safeTx, domainSeparator) {
@@ -115,20 +123,63 @@ async function main() {
       process.exit(1);
     }
     
-    // Get addresses from environment based on network
+    // Process command line arguments
+    let operationIdentifier = '';
+    let contractType = '';
+    
+    for (let i = 0; i < process.argv.length; i++) {
+      if (process.argv[i] === "--id" && i + 1 < process.argv.length) {
+        operationIdentifier = process.argv[i + 1];
+      }
+      if (process.argv[i] === "--type" && i + 1 < process.argv.length) {
+        contractType = process.argv[i + 1];
+      }
+    }
+    
+    // If contract type not specified, ask user to choose
+    if (!contractType) {
+      console.log('\nPlease select contract type:');
+      console.log('1: Sale Contract');
+      console.log('2: Staking Contract');
+      
+      const typeChoice = await prompt('Select type (1 or 2): ');
+      contractType = typeChoice === '1' ? 'sale' : 'staking';
+    }
+    
+    // Get addresses from environment based on network and contract type
     let safeAddress, timelockAddress, contractAddress;
     
-    if (network.includes("mainnet")) {
-      safeAddress = process.env["UNICHAIN-MAINNET_TOKEN_SALE_SAFE"];
-      timelockAddress = process.env["UNICHAIN-MAINNET_SALE_TIMELOCK_ADDRESS"];
-      contractAddress = process.env["UNICHAIN-MAINNET_SALE_ADDRESS"];
+    if (contractType.toLowerCase() === 'sale') {
+      if (network.includes("mainnet")) {
+        safeAddress = process.env["UNICHAIN-MAINNET_TOKEN_SALE_SAFE"];
+        timelockAddress = process.env["UNICHAIN-MAINNET_SALE_TIMELOCK_ADDRESS"];
+        contractAddress = process.env["UNICHAIN-MAINNET_SALE_ADDRESS"];
+      } else {
+        safeAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_TOKEN_SALE_SAFE"];
+        timelockAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_SALE_TIMELOCK_ADDRESS"];
+        contractAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_SALE_ADDRESS"];
+      }
     } else {
-      safeAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_TOKEN_SALE_SAFE"];
-      timelockAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_SALE_TIMELOCK_ADDRESS"];
-      contractAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_SALE_ADDRESS"];
+      // Staking contract
+      if (network.includes("mainnet")) {
+        safeAddress = process.env["UNICHAIN-MAINNET_MOONCAT_STAKING_SAFE"];
+        timelockAddress = process.env["UNICHAIN-MAINNET_STAKING_TIMELOCK_ADDRESS"];
+        contractAddress = process.env["UNICHAIN-MAINNET_STAKING_ADDRESS"];
+      } else {
+        safeAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_MOONCAT_STAKING_SAFE"];
+        timelockAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_STAKING_TIMELOCK_ADDRESS"];
+        contractAddress = process.env["UNICHAIN-SEPOLIA-TESTNET_STAKING_ADDRESS"];
+      }
+    }
+    
+    if (!safeAddress || !timelockAddress || !contractAddress) {
+      console.error(`Missing environment variables for ${contractType} contract on ${network}`);
+      rl.close();
+      process.exit(1);
     }
     
     console.log('\nCurrent configuration:');
+    console.log(`Contract type: ${contractType.toUpperCase()}`);
     console.log(`Safe address: ${safeAddress}`);
     console.log(`Timelock address: ${timelockAddress}`);
     console.log(`Target contract address: ${contractAddress}`);
@@ -139,15 +190,7 @@ async function main() {
     let functionData = '';
     let predecessorValue = ethers.ZeroHash;
     let saltValue = '';
-    let operationIdentifier = '';
     let shouldSkipToExecution = false;
-    
-    // Process command line arguments
-    for (let i = 0; i < process.argv.length; i++) {
-      if (process.argv[i] === "--id" && i + 1 < process.argv.length) {
-        operationIdentifier = process.argv[i + 1];
-      }
-    }
     
     if (operationIdentifier) {
       console.log(`Operation ID provided: ${operationIdentifier}`);
@@ -229,13 +272,28 @@ async function main() {
       // Interactive mode to get operation details
       console.log('\n==== Timelock Operation Executor ====');
       
-      // Get contract actions
+      // Get contract actions based on contract type
       const contractInterface = new ethers.Interface(CONTRACT_ABI);
-      const actionOptions = {
+      let actionOptions = {
         '1': { name: 'Unpause Contract', data: contractInterface.encodeFunctionData("unpause", []) },
-        '2': { name: 'Pause Contract', data: contractInterface.encodeFunctionData("pause", []) },
-        '3': { name: 'Custom Action (Enter Function Data Manually)', data: null }
+        '2': { name: 'Pause Contract', data: contractInterface.encodeFunctionData("pause", []) }
       };
+      
+      // Add staking-specific options if staking contract
+      if (contractType.toLowerCase() === 'staking') {
+        const stakingInterface = new ethers.Interface(STAKING_ABI);
+        actionOptions['3'] = { 
+          name: 'Set 7-Day Staking Rate (19.99%)', 
+          data: stakingInterface.encodeFunctionData("setRewardRate7Days", [1999])
+        };
+        actionOptions['4'] = { 
+          name: 'Set 1-Year Staking Rate (35%)', 
+          data: stakingInterface.encodeFunctionData("setRewardRate1Year", [3500]) 
+        };
+        actionOptions['5'] = { name: 'Custom Action (Enter Function Data Manually)', data: null };
+      } else {
+        actionOptions['3'] = { name: 'Custom Action (Enter Function Data Manually)', data: null };
+      }
       
       // Ask which action to perform
       console.log('\nAvailable actions:');
@@ -243,9 +301,9 @@ async function main() {
         console.log(`${key}: ${value.name}`);
       }
       
-      let actionChoice = await prompt('Select action (1-3): ');
+      let actionChoice = await prompt(`Select action (1-${Object.keys(actionOptions).length}): `);
       
-      if (actionChoice === '3') {
+      if (actionChoice === '3' && contractType.toLowerCase() !== 'staking' || actionChoice === '5') {
         // Custom action - ask for function data
         functionData = await prompt('Enter function data (hex): ');
         if (!functionData.startsWith('0x')) {
@@ -492,13 +550,32 @@ async function main() {
       console.log('\nOperation executed successfully!');
       console.log(`Transaction hash: ${receipt.hash}`);
       
-      // Check if contract is now unpaused/paused
+      // Check status based on contract type
       try {
         const targetContract = new ethers.Contract(targetAddress, CONTRACT_ABI, provider);
-        const isPaused = await targetContract.paused();
-        console.log(`Contract paused status: ${isPaused ? "PAUSED" : "NOT PAUSED"}`);
+        
+        // Check pause status for all contract types
+        try {
+          const isPaused = await targetContract.paused();
+          console.log(`Contract paused status: ${isPaused ? "PAUSED" : "NOT PAUSED"}`);
+        } catch (error) {
+          // Ignore if paused function doesn't exist
+        }
+        
+        // For staking contracts, check rates
+        if (contractType.toLowerCase() === 'staking') {
+          try {
+            const rate7Days = await targetContract.rewardRate7Days();
+            const rate1Year = await targetContract.rewardRate1Year();
+            console.log(`Current staking rates:`);
+            console.log(`7-Day rate: ${rate7Days} (${(Number(rate7Days) / 100).toFixed(2)}%)`);
+            console.log(`1-Year rate: ${rate1Year} (${(Number(rate1Year) / 100).toFixed(2)}%)`);
+          } catch (error) {
+            // Ignore if rate functions don't exist
+          }
+        }
       } catch (error) {
-        // Ignore errors if the contract doesn't have a paused function
+        console.log('Unable to check contract status.');
       }
     } else {
       console.error('Transaction failed!');

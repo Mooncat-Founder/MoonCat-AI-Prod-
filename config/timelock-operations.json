@@ -46,5 +46,17 @@
     "network": "unichain-sepolia-testnet",
     "timestamp": 1743213908392,
     "createdAt": "2025-03-29T02:05:08.395Z"
+  },
+  {
+    "id": "0x520bc7414e89b8f1ffc07703264780342020a9f1c9da5787fe6732fedc95448b",
+    "target": "0xE46C0c8Bb91e8bBBAd7fE63f2b15e189095A429B",
+    "value": 0,
+    "data": "0xc5b1c7d0",
+    "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "salt": "0x1d89f0c98d79d19686232fd1f39df33186eeec58dbc7254b95a363a8e027868e",
+    "description": "Enable emergency mode",
+    "network": "unichain-sepolia-testnet",
+    "timestamp": 1745546497413,
+    "createdAt": "2025-04-25T02:01:37.414Z"
   }
 ]
